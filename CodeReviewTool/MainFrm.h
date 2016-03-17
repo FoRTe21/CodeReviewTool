@@ -64,6 +64,7 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	// Command line¿« arguments∏¶ πﬁæ∆ø»
 	bool SetCmdArguments(LPTSTR arguments);
+	afx_msg void OnSave();
 };
 
 

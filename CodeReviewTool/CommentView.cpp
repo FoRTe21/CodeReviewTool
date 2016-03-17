@@ -13,6 +13,8 @@ IMPLEMENT_DYNCREATE(CCommentView, CView)
 CCommentView::CCommentView()
 {
 	m_cmtSourceCode = NULL;
+	m_numberEditCtrlWidth = 0;
+	m_maxLineNumber = 0;
 }
 
 CCommentView::~CCommentView()
@@ -62,8 +64,21 @@ int CCommentView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
 	CRect cr;
 	GetClientRect(&cr);
-	m_codeRichEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | WS_VSCROLL | WS_HSCROLL,
-		cr, this, RICHEDITID2);
+
+	m_numberEditCtrlWidth = cr.right / 10;
+	cr.right = m_numberEditCtrlWidth;
+	m_codeLineEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_MULTILINE |
+						  WS_VSCROLL | WS_HSCROLL | ES_READONLY | ES_CENTER,
+						  cr, this, IDC_NUMRICHEDIT);
+
+	GetClientRect(&cr);
+	cr.left = m_numberEditCtrlWidth;
+	cr.right = cr.right - m_numberEditCtrlWidth;
+	m_codeRichEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | 
+						  WS_VSCROLL | WS_HSCROLL,
+						  cr, this, IDC_CODERICHEDIT);
+
+	m_codeRichEdit.SetEventMask(m_codeRichEdit.GetEventMask() | NM_KEYDOWN);
 
 	CHARFORMAT cf;
 	cf.cbSize = sizeof(cf);
@@ -73,6 +88,8 @@ int CCommentView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	cf.crTextColor = RGB(0, 0, 0);
 	cf.bCharSet = HANGEUL_CHARSET;
 	m_codeRichEdit.SetDefaultCharFormat(cf);
+	m_codeLineEdit.SetDefaultCharFormat(cf);
+
 	return 0;
 }
 
@@ -84,7 +101,14 @@ void CCommentView::OnSize(UINT nType, int cx, int cy)
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	CRect cr;
 	GetClientRect(&cr);
-	m_codeRichEdit.SetRect(&cr);
+
+	cr.right = m_numberEditCtrlWidth;
+	m_codeLineEdit.MoveWindow(&cr, 1);
+
+	GetClientRect(&cr);
+	cr.left = m_numberEditCtrlWidth;
+	cr.right = cr.right - m_numberEditCtrlWidth;
+	m_codeRichEdit.MoveWindow(&cr, 1);
 }
 
 void CCommentView::SetCmtSourceCode(LPTSTR sourceCode)
@@ -93,4 +117,75 @@ void CCommentView::SetCmtSourceCode(LPTSTR sourceCode)
 	m_cmtSourceCode = sourceCode;
 
 	m_codeRichEdit.SetWindowTextW(m_cmtSourceCode);
+
+	this->SrcLineCount();
+}
+
+LPWSTR CCommentView::GetCmtSourceCode()
+{
+	int length = m_codeRichEdit.GetTextLength();
+
+	delete[] m_cmtSourceCode;
+	m_cmtSourceCode = NULL;
+
+	m_cmtSourceCode = new WCHAR[length + 1];
+	m_codeRichEdit.GetWindowTextW(m_cmtSourceCode, length * 2 + 1);
+
+	return m_cmtSourceCode;
+}
+
+int CCommentView::GetCmtSourceCodeLength()
+{
+	return m_codeRichEdit.GetTextLength();
+}
+
+void CCommentView::SrcLineCount()
+{
+	WCHAR cntStr[LINELENGTH];
+	LPWSTR enterLoc = NULL;
+	
+	enterLoc = wcsstr(m_cmtSourceCode, L"\r\n");
+	m_maxLineNumber++;
+	wsprintf(cntStr, L"%d\r\n", m_maxLineNumber);
+	m_codeLineEdit.ReplaceSel(cntStr, 0);
+
+	while ((enterLoc = wcsstr(enterLoc + 1, L"\r\n")) != NULL)
+	{
+		m_maxLineNumber++;
+		wsprintf(cntStr, L"%d\r\n", m_maxLineNumber);
+		m_codeLineEdit.ReplaceSel(cntStr, 0);
+	}
+
+	m_maxLineNumber++;
+	wsprintf(cntStr, L"%d\r\n", m_maxLineNumber);
+	m_codeLineEdit.ReplaceSel(cntStr, 0);
+}
+
+BOOL CCommentView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+	if (LOWORD(wParam) == IDC_CODERICHEDIT)
+	{
+		MSGFILTER* mf = (MSGFILTER*)lParam;
+		switch (mf->msg)
+		{
+		case WM_KEYDOWN:
+		{
+			switch (mf->wParam)
+			{
+			case VK_RETURN:
+			{
+				WCHAR cntStr[LINELENGTH];
+				m_maxLineNumber++;
+				wsprintf(cntStr, L"%d\r\n", m_maxLineNumber);
+				m_codeLineEdit.ReplaceSel(cntStr, 0);
+				break;
+			}
+			}
+			break;
+			
+		}
+		}
+	}
+	return CView::OnNotify(wParam, lParam, pResult);
 }

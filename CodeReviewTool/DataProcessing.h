@@ -2,8 +2,8 @@
 class CDataProcessing
 {
 private:
-	LPTSTR m_preCodeFileName;
-	LPTSTR m_cmtCodeFileName;
+	LPWSTR m_preCodeFileName;
+	LPWSTR m_cmtCodeFileName;
 
 	LPWSTR m_preSourceCode;
 	LPWSTR m_cmtSourceCode;
@@ -15,5 +15,7 @@ public:
 	bool ReadCodeFile(LPTSTR arguments);
 	LPWSTR GetPreSourceCode();
 	LPWSTR GetCmtSourceCode();
+
+	bool SaveCodeData(LPWSTR srcCode, int txtLength);
 };
 

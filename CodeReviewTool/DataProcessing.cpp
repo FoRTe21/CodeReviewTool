@@ -83,3 +83,30 @@ LPTSTR CDataProcessing::GetCmtSourceCode()
 {
 	return m_cmtSourceCode;
 }
+
+bool CDataProcessing::SaveCodeData(LPWSTR srcCode, int txtLength)
+{
+	//추후에 예외처리
+	CFile outputFile;
+	LPWSTR outputFileName, context, tmpFileName, copiedFileName;
+	WORD wd = 0xfeff;
+	WCHAR tmp[2];
+
+	copiedFileName = new WCHAR[wcslen(m_cmtCodeFileName) + 1];
+	wcscpy_s(copiedFileName, wcslen(m_cmtCodeFileName) + 1, m_cmtCodeFileName);
+	m_cmtSourceCode = srcCode;
+	tmpFileName = wcstok_s(copiedFileName, TEXT("."), &context);
+
+	outputFileName = new WCHAR[wcslen(tmpFileName) + wcslen(TEXT(".mcrt")) + 1];
+	wsprintfW(outputFileName, TEXT("%s.mcrt"), tmpFileName);
+
+	outputFile.Open(outputFileName, CFile::modeCreate | CFile::modeWrite, 0);
+	memcpy(tmp, &wd, 2);
+	outputFile.Write(tmp, 2);
+	outputFile.Write(srcCode, txtLength * 2);
+	outputFile.Close();
+
+	delete[] copiedFileName;
+	delete[] outputFileName;
+	return true;
+}

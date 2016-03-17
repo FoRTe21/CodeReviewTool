@@ -1,6 +1,9 @@
 #pragma once
 
-#define RICHEDITID2 101
+#define IDC_CODERICHEDIT 101
+#define IDC_NUMRICHEDIT 102
+
+#define LINELENGTH 30
 // CCommentView 뷰입니다.
 
 class CCommentView : public CView
@@ -8,7 +11,11 @@ class CCommentView : public CView
 	DECLARE_DYNCREATE(CCommentView)
 protected:
 	CRichEditCtrl m_codeRichEdit;
-	LPTSTR m_cmtSourceCode;
+	CRichEditCtrl m_codeLineEdit;
+	LPWSTR m_cmtSourceCode;
+
+	LONG m_numberEditCtrlWidth;
+	int m_maxLineNumber;
 
 protected:
 	CCommentView();           // 동적 만들기에 사용되는 protected 생성자입니다.
@@ -31,7 +38,10 @@ public:
 
 public:
 	void SetCmtSourceCode(LPTSTR sourceCode);
-	
+	LPWSTR GetCmtSourceCode();
+	int GetCmtSourceCodeLength();
+	void SrcLineCount();
+	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 };
 
 

@@ -20,6 +20,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_SETFOCUS()
 //	ON_WM_SIZE()
 ON_WM_SIZE()
+ON_COMMAND(ID_SAVE, &CMainFrame::OnSave)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -247,4 +248,11 @@ bool CMainFrame::SetCmdArguments(LPTSTR arguments)
 		return false;
 	}
 	return true;
+}
+
+
+void CMainFrame::OnSave()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	m_dataProcessor.SaveCodeData(m_ptCmtView->GetCmtSourceCode(), m_ptCmtView->GetCmtSourceCodeLength());
 }

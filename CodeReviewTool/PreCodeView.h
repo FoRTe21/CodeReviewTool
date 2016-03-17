@@ -32,6 +32,7 @@ public:
 
 public:
 	void SetPreSourceCode(LPWSTR sourceCode);
+
 };
 
 

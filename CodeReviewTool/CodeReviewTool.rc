@@ -103,6 +103,7 @@ IDR_MAINFRAME MENU
 BEGIN
     POPUP "파일(&F)"
     BEGIN
+        MENUITEM "저장",                          ID_SAVE
         MENUITEM "끝내기(&X)",                     ID_APP_EXIT
     END
     POPUP "편집(&E)"
