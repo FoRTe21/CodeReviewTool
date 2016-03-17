@@ -39,6 +39,9 @@
     <ClInclude Include="PreCodeView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DataProcessing.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CodeReviewTool.cpp">
@@ -57,6 +60,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="PreCodeView.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DataProcessing.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

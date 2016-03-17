@@ -189,6 +189,7 @@
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="CodeReviewTool.h" />
     <ClInclude Include="CommentView.h" />
+    <ClInclude Include="DataProcessing.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="PreCodeView.h" />
     <ClInclude Include="Resource.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CodeReviewTool.cpp" />
     <ClCompile Include="CommentView.cpp" />
+    <ClCompile Include="DataProcessing.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="PreCodeView.cpp" />
     <ClCompile Include="stdafx.cpp">

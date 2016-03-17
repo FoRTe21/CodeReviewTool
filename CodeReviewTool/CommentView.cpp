@@ -12,7 +12,7 @@ IMPLEMENT_DYNCREATE(CCommentView, CView)
 
 CCommentView::CCommentView()
 {
-
+	m_cmtSourceCode = NULL;
 }
 
 CCommentView::~CCommentView()
@@ -64,6 +64,15 @@ int CCommentView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	GetClientRect(&cr);
 	m_codeRichEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | WS_VSCROLL | WS_HSCROLL,
 		cr, this, RICHEDITID2);
+
+	CHARFORMAT cf;
+	cf.cbSize = sizeof(cf);
+	cf.dwEffects = CFE_PROTECTED;
+	cf.dwMask = CFM_BOLD | CFM_ITALIC | CFM_STRIKEOUT | CFM_UNDERLINE | CFM_FACE | CFM_SIZE | CFM_CHARSET | CFM_PROTECTED | CFM_COLOR;
+	cf.yHeight = 200;
+	cf.crTextColor = RGB(0, 0, 0);
+	cf.bCharSet = HANGEUL_CHARSET;
+	m_codeRichEdit.SetDefaultCharFormat(cf);
 	return 0;
 }
 
@@ -76,4 +85,12 @@ void CCommentView::OnSize(UINT nType, int cx, int cy)
 	CRect cr;
 	GetClientRect(&cr);
 	m_codeRichEdit.SetRect(&cr);
+}
+
+void CCommentView::SetCmtSourceCode(LPTSTR sourceCode)
+{
+	// 예외처리 필요 NULL인지 아닌지.
+	m_cmtSourceCode = sourceCode;
+
+	m_codeRichEdit.SetWindowTextW(m_cmtSourceCode);
 }

@@ -35,6 +35,8 @@ static UINT indicators[] =
 CMainFrame::CMainFrame()
 {
 	// TODO: 여기에 멤버 초기화 코드를 추가합니다.
+	m_ptPreView = NULL;
+	m_ptCmtView = NULL;
 }
 
 CMainFrame::~CMainFrame()
@@ -71,7 +73,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
-
 
 	return 0;
 }
@@ -212,6 +213,12 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 		return false;
 	}
 	
+	m_ptPreView = (CPreCodeView*)m_wndSplitter.GetPane(0, 0);
+	m_ptCmtView = (CCommentView*)m_wndSplitter.GetPane(0, 1);
+
+	m_ptPreView->SetPreSourceCode(m_dataProcessor.GetPreSourceCode());
+	m_ptCmtView->SetCmtSourceCode(m_dataProcessor.GetCmtSourceCode());
+
 	return CFrameWnd::OnCreateClient(lpcs, pContext);
 }
 
@@ -223,11 +230,21 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 
 	CRect cr;
 	GetClientRect(&cr);
-	if (cy == 0)
-	{
-		m_wndSplitter.SetColumnInfo(0, cx / 2, 0);
-		m_wndSplitter.SetColumnInfo(1, cx / 2, 0);
+	
+	m_wndSplitter.SetColumnInfo(0, cx / 2, 0);
+	m_wndSplitter.SetColumnInfo(1, cx / 2, 0);
 
-		m_wndSplitter.RecalcLayout();
+	m_wndSplitter.RecalcLayout();
+	// 자연스럽게 분할창 조절되는 것은 이후에 구현.
+}
+
+
+// Command line의 arguments를 받아옴
+bool CMainFrame::SetCmdArguments(LPTSTR arguments)
+{
+	if (m_dataProcessor.ReadCodeFile(arguments) == false)
+	{
+		return false;
 	}
+	return true;
 }

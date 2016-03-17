@@ -12,7 +12,7 @@ IMPLEMENT_DYNCREATE(CPreCodeView, CView)
 
 CPreCodeView::CPreCodeView()
 {
-
+	m_preSourceCode = NULL;
 }
 
 CPreCodeView::~CPreCodeView()
@@ -64,6 +64,15 @@ int CPreCodeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	GetClientRect(&cr);
 	m_codeRichEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | WS_VSCROLL | WS_HSCROLL,
 							cr, this, RICHEDITID);
+
+	CHARFORMAT cf;
+	cf.cbSize = sizeof(cf);
+	cf.dwEffects = CFE_PROTECTED;
+	cf.dwMask = CFM_BOLD | CFM_ITALIC | CFM_STRIKEOUT | CFM_UNDERLINE | CFM_FACE | CFM_SIZE | CFM_CHARSET | CFM_PROTECTED | CFM_COLOR;
+	cf.yHeight = 200;
+	cf.crTextColor = RGB(0, 0, 0);
+	cf.bCharSet = HANGEUL_CHARSET;
+	m_codeRichEdit.SetDefaultCharFormat(cf);
 	return 0;
 }
 
@@ -78,4 +87,12 @@ void CPreCodeView::OnSize(UINT nType, int cx, int cy)
 
 	m_codeRichEdit.MoveWindow(&cr, 1);
 	
+}
+
+void CPreCodeView::SetPreSourceCode(LPWSTR sourceCode)
+{
+	// 예외 처리 필요. NULL인지 아닌지
+	m_preSourceCode = sourceCode;
+
+	m_codeRichEdit.SetWindowTextW(m_preSourceCode);
 }

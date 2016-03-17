@@ -8,6 +8,7 @@ class CCommentView : public CView
 	DECLARE_DYNCREATE(CCommentView)
 protected:
 	CRichEditCtrl m_codeRichEdit;
+	LPTSTR m_cmtSourceCode;
 
 protected:
 	CCommentView();           // 동적 만들기에 사용되는 protected 생성자입니다.
@@ -27,6 +28,10 @@ protected:
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+
+public:
+	void SetCmtSourceCode(LPTSTR sourceCode);
+	
 };
 
 

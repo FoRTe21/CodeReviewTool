@@ -9,6 +9,7 @@ class CPreCodeView : public CView
 	DECLARE_DYNCREATE(CPreCodeView)
 protected:
 	CRichEditCtrl m_codeRichEdit;
+	LPWSTR m_preSourceCode;
 
 protected:
 	CPreCodeView();           // 동적 만들기에 사용되는 protected 생성자입니다.
@@ -28,6 +29,9 @@ protected:
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+
+public:
+	void SetPreSourceCode(LPWSTR sourceCode);
 };
 
 

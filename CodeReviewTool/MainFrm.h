@@ -6,6 +6,7 @@
 #include "ChildView.h"
 #include "PreCodeView.h"
 #include "CommentView.h"
+#include "DataProcessing.h"
 
 #include "afxext.h"
 
@@ -41,6 +42,12 @@ protected:  // 컨트롤 모음이 포함된 멤버입니다.
 	CStatusBar        m_wndStatusBar;
 	//CChildView    m_wndView;
 	CSplitterWnd m_wndSplitter;
+	CDataProcessing m_dataProcessor;
+	CPreCodeView* m_ptPreView;
+	CCommentView* m_ptCmtView;
+
+	LPWSTR m_preSourceCodeFileName;
+	LPWSTR m_commentSourceCodeFileName;
 
 // 생성된 메시지 맵 함수
 protected:
@@ -55,6 +62,8 @@ protected:
 public:
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	// Command line의 arguments를 받아옴
+	bool SetCmdArguments(LPTSTR arguments);
 };
 
 
