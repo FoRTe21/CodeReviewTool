@@ -18,6 +18,7 @@ protected:
 protected:
 	void ParsingData();
 	bool WriteCmtInFile();
+	void CleanOutputList();
 
 public:
 	CDataProcessing();
@@ -28,6 +29,6 @@ public:
 	LPWSTR GetCmtSourceCode();
 
 	bool SaveCodeData(LPWSTR srcCode, int txtLength);
-	
+	bool OpenCodeFile(LPWSTR preCode, LPWSTR cmdCode);
 };
 

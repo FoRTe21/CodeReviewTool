@@ -27,26 +27,34 @@ bool CDataProcessing::ReadCodeFile(LPTSTR arguments)
 {
 	// 파일명을 파싱하고 파일명으로 코드 파일을 엶.
 	// 이 때 예외처리는 후에 추가.
-	CFile preFile, cmtFile;
-	char* tmp = NULL;
 	LPTSTR context = NULL;
-	int preFileLength, cmtFileLength;
+	
 	size_t len = 0;
 
 	m_preCodeFileName = wcstok_s(arguments, TEXT(" "), &context);
 	m_cmtCodeFileName = wcstok_s(context, TEXT(" "), &context);
 
+	OpenCodeFile(m_preCodeFileName, m_cmtCodeFileName);
 
-	preFile.Open(m_preCodeFileName, CFile::modeRead, 0);
+	return true;
+}
+
+bool CDataProcessing::OpenCodeFile(LPWSTR preCode, LPWSTR cmdCode)
+{
+	CFile preFile, cmtFile;
+	int preFileLength, cmtFileLength;
+	char* tmp = NULL;
+
+	preFile.Open(preCode, CFile::modeRead, 0);
 
 	preFileLength = preFile.GetLength();
 	tmp = new char[preFileLength + 1];
 	tmp[preFileLength] = '\0';
 
-	preFile.Read(tmp, preFileLength); 
+	preFile.Read(tmp, preFileLength);
 	m_preSourceCode = new WCHAR[preFileLength + 1];
 	m_preSourceCode[preFileLength] = '\0';
-	
+
 	MultiByteToWideChar(CP_ACP, 0, tmp, -1, m_preSourceCode, preFileLength * 2);
 
 	delete[] tmp;
@@ -55,14 +63,13 @@ bool CDataProcessing::ReadCodeFile(LPTSTR arguments)
 	preFile.Close();
 
 
-	cmtFile.Open(m_cmtCodeFileName, CFile::modeRead, 0);
+	cmtFile.Open(cmdCode, CFile::modeRead, 0);
 
 	cmtFileLength = cmtFile.GetLength();
 	tmp = new char[cmtFileLength + 1];
 	tmp[cmtFileLength] = '\0';
 
 	cmtFile.Read(tmp, cmtFileLength);
-	
 	m_cmtSourceCode = new WCHAR[cmtFileLength + 1];
 	m_cmtSourceCode[cmtFileLength] = '\0';
 
@@ -82,7 +89,6 @@ LPTSTR CDataProcessing::GetPreSourceCode()
 {
 	return m_preSourceCode;
 }
-
 
 LPTSTR CDataProcessing::GetCmtSourceCode()
 {
@@ -107,12 +113,15 @@ bool CDataProcessing::SaveCodeData(LPWSTR srcCode, int txtLength)
 
 void CDataProcessing::ParsingData()
 {
+	// 문제 발견. 차후에 코드 변경.
 	int i = 0;
 	int lineCnt = 1;
 	int sCmtPoint, eCmtPoint;
 	bool cmtFlag = false;
 	LPWSTR cmtStr = NULL;
 	LPWSTR outputData = NULL;
+
+	CleanOutputList();
 
 	for (i = 0; i < m_txtLength; i++)
 	{
@@ -164,4 +173,18 @@ bool CDataProcessing::WriteCmtInFile()
 	outputFile.Close();
 
 	return true;
+}
+
+void CDataProcessing::CleanOutputList()
+{
+	std::list<LPWSTR>::iterator iter;
+	if (!m_outputList.empty())
+	{
+		for (iter = m_outputList.begin(); iter != m_outputList.end(); iter++)
+		{
+			delete[](*iter);
+		}
+
+		m_outputList.clear();
+	}
 }

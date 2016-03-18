@@ -92,7 +92,10 @@ BOOL CCodeReviewToolApp::InitInstance()
 	// 만든 다음 이를 응용 프로그램의 주 창 개체로 설정합니다.
 	CMainFrame* pFrame = new CMainFrame;
 
-	pFrame->SetCmdArguments(m_lpCmdLine);
+	if (m_lpCmdLine != NULL)
+	{
+		pFrame->SetCmdArguments(m_lpCmdLine);
+	}
 	if (!pFrame)
 		return FALSE;
 	m_pMainWnd = pFrame;

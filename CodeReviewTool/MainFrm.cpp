@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 //	ON_WM_SIZE()
 ON_WM_SIZE()
 ON_COMMAND(ID_SAVE, &CMainFrame::OnSave)
+ON_COMMAND(ID_FILEOPEN, &CMainFrame::OnFileopen)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -255,4 +256,21 @@ void CMainFrame::OnSave()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	m_dataProcessor.SaveCodeData(m_ptCmtView->GetCmtSourceCode(), m_ptCmtView->GetCmtSourceCodeLength());
+}
+
+
+void CMainFrame::OnFileopen()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	OPENFILENAME ofn;
+	TCHAR lpStrFile[MAX_PATH] = L"";
+	memset(&ofn, 0, sizeof(OPENFILENAME));
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = m_hWnd;
+	ofn.lpstrFilter = L"모든 파일(*.*)\0*.*\0";
+	ofn.lpstrFile = lpStrFile;
+	ofn.nMaxFile = MAX_PATH;
+
+	GetOpenFileName(&ofn);
 }

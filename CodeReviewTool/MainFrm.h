@@ -65,6 +65,7 @@ public:
 	// Command line¿« arguments∏¶ πﬁæ∆ø»
 	bool SetCmdArguments(LPTSTR arguments);
 	afx_msg void OnSave();
+	afx_msg void OnFileopen();
 };
 
 
