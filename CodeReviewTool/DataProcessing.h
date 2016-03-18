@@ -1,13 +1,24 @@
 #pragma once
+#include <list>
+
 class CDataProcessing
 {
-private:
+protected:
 	LPWSTR m_preCodeFileName;
 	LPWSTR m_cmtCodeFileName;
+
+	LPWSTR m_outputFileName;
 
 	LPWSTR m_preSourceCode;
 	LPWSTR m_cmtSourceCode;
 	
+	std::list<LPWSTR> m_outputList;
+	int m_txtLength;
+
+protected:
+	void ParsingData();
+	bool WriteCmtInFile();
+
 public:
 	CDataProcessing();
 	~CDataProcessing();
@@ -17,5 +28,6 @@ public:
 	LPWSTR GetCmtSourceCode();
 
 	bool SaveCodeData(LPWSTR srcCode, int txtLength);
+	
 };
 

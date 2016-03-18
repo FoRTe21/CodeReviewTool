@@ -9,6 +9,8 @@ CDataProcessing::CDataProcessing()
 
 	m_preSourceCode = NULL;
 	m_cmtSourceCode = NULL;
+
+	m_outputList.clear();
 }
 
 
@@ -30,7 +32,6 @@ bool CDataProcessing::ReadCodeFile(LPTSTR arguments)
 	LPTSTR context = NULL;
 	int preFileLength, cmtFileLength;
 	size_t len = 0;
-	
 
 	m_preCodeFileName = wcstok_s(arguments, TEXT(" "), &context);
 	m_cmtCodeFileName = wcstok_s(context, TEXT(" "), &context);
@@ -70,6 +71,10 @@ bool CDataProcessing::ReadCodeFile(LPTSTR arguments)
 	tmp = NULL;
 
 	cmtFile.Close();
+
+	m_outputFileName = new WCHAR[wcslen(m_cmtCodeFileName) + wcslen(L".mcrt") + 1];
+	wsprintf(m_outputFileName, L"%s.mcrt", m_cmtCodeFileName);
+
 	return true;
 }
 
@@ -87,26 +92,76 @@ LPTSTR CDataProcessing::GetCmtSourceCode()
 bool CDataProcessing::SaveCodeData(LPWSTR srcCode, int txtLength)
 {
 	//추후에 예외처리
+	
+	m_cmtSourceCode = srcCode;
+	m_txtLength = txtLength;
+
+	ParsingData();
+
+	if (WriteCmtInFile() == false)
+	{
+		return false;
+	}
+	return true;
+}
+
+void CDataProcessing::ParsingData()
+{
+	int i = 0;
+	int lineCnt = 1;
+	int sCmtPoint, eCmtPoint;
+	bool cmtFlag = false;
+	LPWSTR cmtStr = NULL;
+	LPWSTR outputData = NULL;
+
+	for (i = 0; i < m_txtLength; i++)
+	{
+		if ((cmtFlag == false) && (m_cmtSourceCode[i] == L'\r'))
+		{
+			lineCnt++;
+		}
+		if ((cmtFlag == false) && (m_cmtSourceCode[i] == L'/') && (m_cmtSourceCode[i + 1] == L'+'))
+		{
+			i++;
+			cmtFlag = true;
+			sCmtPoint = i + 1;
+		}
+		if ((cmtFlag == true) && (m_cmtSourceCode[i] == L'+') && (m_cmtSourceCode[i + 1] == L'/'))
+		{
+			eCmtPoint = i - 1;
+			cmtStr = new WCHAR[eCmtPoint - sCmtPoint + 1];
+			wmemset(cmtStr, 0, eCmtPoint - sCmtPoint + 1);
+			wcsncpy_s(cmtStr, eCmtPoint - sCmtPoint + 1, &m_cmtSourceCode[sCmtPoint], eCmtPoint - sCmtPoint);
+			
+			outputData = new WCHAR[30 + eCmtPoint - sCmtPoint + 1];
+			wmemset(outputData, 0, 30 + eCmtPoint - sCmtPoint + 1);
+
+			wsprintf(outputData, L"%d :%s\r\n", lineCnt, cmtStr);
+			m_outputList.push_back(outputData);
+
+			delete[] cmtStr;
+			cmtStr = NULL;
+			cmtFlag = false;
+		}
+	}
+}
+
+bool CDataProcessing::WriteCmtInFile()
+{
 	CFile outputFile;
-	LPWSTR outputFileName, context, tmpFileName, copiedFileName;
 	WORD wd = 0xfeff;
 	WCHAR tmp[2];
+	std::list<LPWSTR>::iterator iter;
 
-	copiedFileName = new WCHAR[wcslen(m_cmtCodeFileName) + 1];
-	wcscpy_s(copiedFileName, wcslen(m_cmtCodeFileName) + 1, m_cmtCodeFileName);
-	m_cmtSourceCode = srcCode;
-	tmpFileName = wcstok_s(copiedFileName, TEXT("."), &context);
-
-	outputFileName = new WCHAR[wcslen(tmpFileName) + wcslen(TEXT(".mcrt")) + 1];
-	wsprintfW(outputFileName, TEXT("%s.mcrt"), tmpFileName);
-
-	outputFile.Open(outputFileName, CFile::modeCreate | CFile::modeWrite, 0);
+	outputFile.Open(m_outputFileName, CFile::modeCreate | CFile::modeWrite, 0);
 	memcpy(tmp, &wd, 2);
 	outputFile.Write(tmp, 2);
-	outputFile.Write(srcCode, txtLength * 2);
+
+	for (iter = m_outputList.begin(); iter != m_outputList.end(); iter++)
+	{
+		outputFile.Write(*iter, wcslen(*iter) * 2);
+	}
 	outputFile.Close();
 
-	delete[] copiedFileName;
-	delete[] outputFileName;
 	return true;
 }

@@ -145,19 +145,16 @@ void CCommentView::SrcLineCount()
 	LPWSTR enterLoc = NULL;
 	
 	enterLoc = wcsstr(m_cmtSourceCode, L"\r\n");
-	m_maxLineNumber++;
-	wsprintf(cntStr, L"%d\r\n", m_maxLineNumber);
+	wsprintf(cntStr, L"%d\r\n", ++m_maxLineNumber);
 	m_codeLineEdit.ReplaceSel(cntStr, 0);
 
 	while ((enterLoc = wcsstr(enterLoc + 1, L"\r\n")) != NULL)
 	{
-		m_maxLineNumber++;
-		wsprintf(cntStr, L"%d\r\n", m_maxLineNumber);
+		wsprintf(cntStr, L"%d\r\n", ++m_maxLineNumber);
 		m_codeLineEdit.ReplaceSel(cntStr, 0);
 	}
 
-	m_maxLineNumber++;
-	wsprintf(cntStr, L"%d\r\n", m_maxLineNumber);
+	wsprintf(cntStr, L"%d\r\n", ++m_maxLineNumber);
 	m_codeLineEdit.ReplaceSel(cntStr, 0);
 }
 
