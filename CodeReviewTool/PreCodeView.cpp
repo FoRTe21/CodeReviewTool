@@ -12,7 +12,6 @@ IMPLEMENT_DYNCREATE(CPreCodeView, CView)
 
 CPreCodeView::CPreCodeView()
 {
-	m_preSourceCode = NULL;
 }
 
 CPreCodeView::~CPreCodeView()
@@ -63,7 +62,9 @@ int CPreCodeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CRect cr;
 	GetClientRect(&cr);
 	m_codeRichEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | WS_VSCROLL | WS_HSCROLL | ES_READONLY,
-							cr, this, RICHEDITID);
+							cr, this, IDC_REVIEWRICHEDIT);
+
+	//m_codeRichEdit.SetEventMask(m_codeRichEdit.GetEventMask() | NM_DBLCLK);
 
 	CHARFORMAT cf;
 	cf.cbSize = sizeof(cf);
@@ -89,10 +90,24 @@ void CPreCodeView::OnSize(UINT nType, int cx, int cy)
 	
 }
 
-void CPreCodeView::SetPreSourceCode(LPWSTR sourceCode)
+void CPreCodeView::PrintComments(CString comments)
 {
 	// 예외 처리 필요. NULL인지 아닌지
-	m_preSourceCode = sourceCode;
+	m_codeRichEdit.SetWindowTextW(comments);
+}
 
-	m_codeRichEdit.SetWindowTextW(m_preSourceCode);
+BOOL CPreCodeView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+	/*if (LOWORD(wParam) == IDC_REVIEWRICHEDIT)
+	{
+		MSGFILTER* mf = (MSGFILTER*)lParam;
+		switch (mf->msg)
+		{
+		case WM_LBUTTONDBLCLK:
+			
+			break;
+		}
+	}*/
+	return CView::OnNotify(wParam, lParam, pResult);
 }

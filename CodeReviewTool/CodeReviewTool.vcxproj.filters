@@ -42,6 +42,15 @@
     <ClInclude Include="DataProcessing.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ReviewData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FileListView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RichEditor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CodeReviewTool.cpp">
@@ -65,6 +74,15 @@
     <ClCompile Include="DataProcessing.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ReviewData.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FileListView.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RichEditor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CodeReviewTool.rc">
@@ -81,6 +99,9 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="res\Toolbar.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="mainfram.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

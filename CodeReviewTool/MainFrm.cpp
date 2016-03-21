@@ -22,6 +22,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 ON_WM_SIZE()
 ON_COMMAND(ID_SAVE, &CMainFrame::OnSave)
 ON_COMMAND(ID_FILEOPEN, &CMainFrame::OnFileopen)
+//ON_WM_PAINT()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -39,6 +40,7 @@ CMainFrame::CMainFrame()
 	// TODO: 여기에 멤버 초기화 코드를 추가합니다.
 	m_ptPreView = NULL;
 	m_ptCmtView = NULL;
+	m_fileList = NULL;
 }
 
 CMainFrame::~CMainFrame()
@@ -57,13 +59,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}*/
 
-	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+/*	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))
 	{
 		TRACE0("도구 모음을 만들지 못했습니다.\n");
 		return -1;      // 만들지 못했습니다.
 	}
-
+	*/
 	/*if (!m_wndStatusBar.Create(this))
 	{
 		TRACE0("상태 표시줄을 만들지 못했습니다.\n");
@@ -72,10 +74,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 	*/
 	// TODO: 도구 모음을 도킹할 수 없게 하려면 이 세 줄을 삭제하십시오.
-	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	/*m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
-
+	*/
 	return 0;
 }
 
@@ -218,9 +220,6 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	m_ptPreView = (CPreCodeView*)m_wndSplitter.GetPane(0, 0);
 	m_ptCmtView = (CCommentView*)m_wndSplitter.GetPane(0, 1);
 
-	m_ptPreView->SetPreSourceCode(m_dataProcessor.GetPreSourceCode());
-	m_ptCmtView->SetCmtSourceCode(m_dataProcessor.GetCmtSourceCode());
-
 	return CFrameWnd::OnCreateClient(lpcs, pContext);
 }
 
@@ -242,20 +241,10 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 
 
 // Command line의 arguments를 받아옴
-bool CMainFrame::SetCmdArguments(LPTSTR arguments)
-{
-	if (m_dataProcessor.ReadCodeFile(arguments) == false)
-	{
-		return false;
-	}
-	return true;
-}
-
 
 void CMainFrame::OnSave()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-	m_dataProcessor.SaveCodeData(m_ptCmtView->GetCmtSourceCode(), m_ptCmtView->GetCmtSourceCodeLength());
 }
 
 
@@ -263,7 +252,9 @@ void CMainFrame::OnFileopen()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	OPENFILENAME ofn;
-	TCHAR lpStrFile[MAX_PATH] = L"";
+	WCHAR lpStrFile[MAX_PATH] = L"";
+	CString content;
+
 	memset(&ofn, 0, sizeof(OPENFILENAME));
 
 	ofn.lStructSize = sizeof(OPENFILENAME);
@@ -273,4 +264,48 @@ void CMainFrame::OnFileopen()
 	ofn.nMaxFile = MAX_PATH;
 
 	GetOpenFileName(&ofn);
+
+	m_dataProcessor.ClearAllData();
+	m_dataProcessor.GetTextFromFile(lpStrFile, content);
+	m_dataProcessor.SetReviewText(content);
+	m_dataProcessor.FillReviewData();
+	OpenFileListView();
+}
+
+void CMainFrame::CloseFileListView()
+{
+	m_fileList = NULL;
+}
+
+void CMainFrame::OpenFileListView()
+{
+	if (m_fileList != NULL)
+	{
+		m_fileList->DestroyWindow();
+		delete m_fileList;
+		m_fileList = NULL;
+	}
+
+	m_fileList = new CFileListView;
+	m_fileList->Create(IDD_FILESELECT, this);
+	m_fileList->InitRevisions(m_dataProcessor.GetRivisions());
+	m_fileList->InitReviews(m_dataProcessor.GetReviews());
+	m_fileList->ShowWindow(SW_SHOW);
+}
+void CMainFrame::PrintReview(CString filepath)
+{
+	CString review;
+	
+	review = m_dataProcessor.GetReview(filepath);
+	m_ptPreView->PrintComments(review);
+	
+}
+
+void CMainFrame::PrintSourceCode(CString filepath)
+{
+	CString sourceCode;
+
+	sourceCode = m_dataProcessor.GetSourceCode(filepath);
+	m_ptCmtView->PrintSourceCode(sourceCode);
+	m_ptCmtView->UpdateData(false);
 }

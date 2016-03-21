@@ -1,6 +1,6 @@
 #pragma once
 
-#define RICHEDITID 100
+#define IDC_REVIEWRICHEDIT 100
 
 // CPreCodeView 뷰입니다.
 
@@ -9,7 +9,6 @@ class CPreCodeView : public CView
 	DECLARE_DYNCREATE(CPreCodeView)
 protected:
 	CRichEditCtrl m_codeRichEdit;
-	LPWSTR m_preSourceCode;
 
 protected:
 	CPreCodeView();           // 동적 만들기에 사용되는 protected 생성자입니다.
@@ -31,8 +30,8 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 public:
-	void SetPreSourceCode(LPWSTR sourceCode);
-
+	void PrintComments(CString comments);
+	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 };
 
 

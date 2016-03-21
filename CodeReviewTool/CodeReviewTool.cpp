@@ -92,10 +92,6 @@ BOOL CCodeReviewToolApp::InitInstance()
 	// 만든 다음 이를 응용 프로그램의 주 창 개체로 설정합니다.
 	CMainFrame* pFrame = new CMainFrame;
 
-	if (m_lpCmdLine != NULL)
-	{
-		pFrame->SetCmdArguments(m_lpCmdLine);
-	}
 	if (!pFrame)
 		return FALSE;
 	m_pMainWnd = pFrame;
@@ -108,6 +104,9 @@ BOOL CCodeReviewToolApp::InitInstance()
 	pFrame->ShowWindow(SW_SHOW);
 	pFrame->UpdateWindow();
 
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+
+	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 	return TRUE;
 }
 
@@ -116,6 +115,7 @@ int CCodeReviewToolApp::ExitInstance()
 	//TODO: 추가한 추가 리소스를 처리합니다.
 	AfxOleTerm(FALSE);
 
+	Gdiplus::GdiplusShutdown(m_gdiplusToken);
 	return CWinApp::ExitInstance();
 }
 

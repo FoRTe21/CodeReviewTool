@@ -1,34 +1,34 @@
 #pragma once
 #include <list>
+#include "ReviewData.h"
 
 class CDataProcessing
 {
 protected:
-	LPWSTR m_preCodeFileName;
-	LPWSTR m_cmtCodeFileName;
+	CString m_reviewText;
 
-	LPWSTR m_outputFileName;
-
-	LPWSTR m_preSourceCode;
-	LPWSTR m_cmtSourceCode;
-	
-	std::list<LPWSTR> m_outputList;
-	int m_txtLength;
+	CString m_url;
+	std::list<CString> m_revisions;
+	std::list<CReviewData> m_reviews;
 
 protected:
-	void ParsingData();
-	bool WriteCmtInFile();
-	void CleanOutputList();
+	CString ConvertMultibyteToUnicode(LPSTR pMultibyte);
+	
 
 public:
 	CDataProcessing();
 	~CDataProcessing();
+	void ClearAllData();
+	
+	bool GetTextFromFile(LPWSTR filepath, CString& contents);
+	bool FillReviewData();
 
-	bool ReadCodeFile(LPTSTR arguments);
-	LPWSTR GetPreSourceCode();
-	LPWSTR GetCmtSourceCode();
+	std::list<CString>* GetRivisions();
+	std::list<CReviewData>* GetReviews();
 
-	bool SaveCodeData(LPWSTR srcCode, int txtLength);
-	bool OpenCodeFile(LPWSTR preCode, LPWSTR cmdCode);
+	CString GetReview(CString filepath);
+	CString GetSourceCode(CString filepath);
+
+	void SetReviewText(CString text);
 };
 

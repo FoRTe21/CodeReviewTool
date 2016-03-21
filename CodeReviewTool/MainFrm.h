@@ -7,6 +7,7 @@
 #include "PreCodeView.h"
 #include "CommentView.h"
 #include "DataProcessing.h"
+#include "FileListView.h"
 
 #include "afxext.h"
 
@@ -45,6 +46,7 @@ protected:  // 컨트롤 모음이 포함된 멤버입니다.
 	CDataProcessing m_dataProcessor;
 	CPreCodeView* m_ptPreView;
 	CCommentView* m_ptCmtView;
+	CFileListView* m_fileList;
 
 	LPWSTR m_preSourceCodeFileName;
 	LPWSTR m_commentSourceCodeFileName;
@@ -62,10 +64,15 @@ protected:
 public:
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-	// Command line의 arguments를 받아옴
-	bool SetCmdArguments(LPTSTR arguments);
 	afx_msg void OnSave();
 	afx_msg void OnFileopen();
+
+	void OpenFileListView();
+	void CloseFileListView();
+	void PrintReview(CString filepath);
+	void PrintSourceCode(CString filepath);
+//	virtual void DoDataExchange(CDataExchange* pDX);
+//	afx_msg void OnPaint();
 };
 
 

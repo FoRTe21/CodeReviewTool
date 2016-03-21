@@ -5,13 +5,13 @@
 
 #define LINELENGTH 30
 // CCommentView 뷰입니다.
+#include "RichEditor.h"
 
 class CCommentView : public CView
 {
 	DECLARE_DYNCREATE(CCommentView)
 protected:
-	CRichEditCtrl m_codeRichEdit;
-	CRichEditCtrl m_codeLineEdit;
+	CRichEditor m_codeRichEdit;
 	LPWSTR m_cmtSourceCode;
 
 	LONG m_numberEditCtrlWidth;
@@ -20,7 +20,6 @@ protected:
 protected:
 	CCommentView();           // 동적 만들기에 사용되는 protected 생성자입니다.
 	virtual ~CCommentView();
-
 public:
 	virtual void OnDraw(CDC* pDC);      // 이 뷰를 그리기 위해 재정의되었습니다.
 #ifdef _DEBUG
@@ -42,6 +41,7 @@ public:
 	int GetCmtSourceCodeLength();
 	void SrcLineCount();
 	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
-};
 
+	void PrintSourceCode(CString sourceCode);
+};
 
