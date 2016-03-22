@@ -24,8 +24,8 @@ CFileListView::~CFileListView()
 void CFileListView::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_REVISION, m_revisionLB);
-	DDX_Control(pDX, IDC_CODEFILE, m_fileNameLB);
+	DDX_Control(pDX, IDC_REVISION, m_revisionListBox);
+	DDX_Control(pDX, IDC_CODEFILE, m_fileNameListBox);
 }
 
 BEGIN_MESSAGE_MAP(CFileListView, CDialogEx)
@@ -41,7 +41,6 @@ END_MESSAGE_MAP()
 void CFileListView::PostNcDestroy()
 {
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	int count = 0;
 	CMainFrame* mf;
 	mf = (CMainFrame*)AfxGetMainWnd();
 
@@ -58,36 +57,17 @@ void CFileListView::OnClose()
 	//CDialogEx::OnClose();
 }
 
-void CFileListView::InitRevisions(std::list<CString>* revisions)
-{
-	std::list<CString>::iterator iter;
-	m_revisions = revisions;
-	
-	for (iter = m_revisions->begin(); iter != m_revisions->end(); iter++)
-	{
-		m_revisionLB.AddString(*iter);
-	}
-
-	m_revisionLB.SetCurSel(0);
-}
-
-void CFileListView::InitReviews(std::list<CReviewData>* reviews)
-{
-	m_reviews = reviews;
-	ViewFileListByIndex(0);
-}
-
 void CFileListView::ViewFileListByIndex(int index)
 {
 	CString rivision;
 	std::list<CReviewData>::iterator iter;
 
-	m_revisionLB.GetText(index, rivision);
+	m_revisionListBox.GetText(index, rivision);
 	for (iter = m_reviews->begin(); iter != m_reviews->end(); iter++)
 	{
 		if (rivision.CompareNoCase(iter->GetRevision()) == 0)
 		{
-			m_fileNameLB.AddString(iter->GetFilePath());
+			m_fileNameListBox.AddString(iter->GetFilePath());
 		}
 	}
 }
@@ -97,20 +77,20 @@ void CFileListView::OnLbnSelchangeRevision()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	CString rivision;
 
-	m_revisionLB.GetText(m_revisionLB.GetCurSel(), rivision);
+	m_revisionListBox.GetText(m_revisionListBox.GetCurSel(), rivision);
 	ClearFileNameLB();
-	ViewFileListByIndex(m_revisionLB.GetCurSel());
+	ViewFileListByIndex(m_revisionListBox.GetCurSel());
 }
 
 
 void CFileListView::ClearFileNameLB()
 {
-	m_fileNameLB.ResetContent();
+	m_fileNameListBox.ResetContent();
 }
 
 void CFileListView::ClearRevisionLB()
 {
-	m_revisionLB.ResetContent();
+	m_revisionListBox.ResetContent();
 }
 
 void CFileListView::OnLbnDblclkCodefile()
@@ -118,8 +98,31 @@ void CFileListView::OnLbnDblclkCodefile()
 	CString filepath;
 	CMainFrame* mf;
 	
-	m_fileNameLB.GetText(m_fileNameLB.GetCurSel(), filepath);
+	m_fileNameListBox.GetText(m_fileNameListBox.GetCurSel(), filepath);
 	mf = (CMainFrame*)AfxGetMainWnd();
-	mf->PrintReview(filepath);
-	mf->PrintSourceCode(filepath);
+	mf->PrintAllTextDataOnEditCtrl(filepath);
+	mf->ScrollSourceCodeEditor(CMD_INIT);
+}
+
+void CFileListView::InitListControls(std::list<CString>* revisions, std::list<CReviewData>* reviews)
+{
+	std::list<CString>::iterator iter;
+	m_revisions = revisions;
+
+	for (iter = m_revisions->begin(); iter != m_revisions->end(); iter++)
+	{
+		m_revisionListBox.AddString(*iter);
+	}
+
+	m_revisionListBox.SetCurSel(0);
+
+	m_reviews = reviews;
+	ViewFileListByIndex(0);
+}
+
+void CFileListView::MakeWindow(CWnd* parentWindow, std::list<CString>* revisions, std::list<CReviewData>* reviews)
+{
+	Create(IDD_FILESELECT, parentWindow);
+	InitListControls(revisions, reviews);
+	ShowWindow(SW_SHOW);
 }

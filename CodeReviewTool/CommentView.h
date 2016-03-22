@@ -12,10 +12,7 @@ class CCommentView : public CView
 	DECLARE_DYNCREATE(CCommentView)
 protected:
 	CRichEditor m_codeRichEdit;
-	LPWSTR m_cmtSourceCode;
-
-	LONG m_numberEditCtrlWidth;
-	int m_maxLineNumber;
+	LPWSTR m_commentSourceCode;
 
 protected:
 	CCommentView();           // 동적 만들기에 사용되는 protected 생성자입니다.
@@ -36,12 +33,12 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 public:
-	void SetCmtSourceCode(LPTSTR sourceCode);
-	LPWSTR GetCmtSourceCode();
-	int GetCmtSourceCodeLength();
-	void SrcLineCount();
-	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
+	void SetCommentSourceCode(LPTSTR sourceCode);
+	LPWSTR GetCommentSourceCode();
+	void ClearViewEdit();
 
 	void PrintSourceCode(CString sourceCode);
+
+	void ScrollEditor(int lineNumber);
 };
 

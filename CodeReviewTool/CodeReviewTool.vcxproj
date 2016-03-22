@@ -193,6 +193,7 @@
     <ClInclude Include="CommentView.h" />
     <ClInclude Include="DataProcessing.h" />
     <ClInclude Include="FileListView.h" />
+    <ClInclude Include="LineSearch.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="PreCodeView.h" />
     <ClInclude Include="Resource.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="CommentView.cpp" />
     <ClCompile Include="DataProcessing.cpp" />
     <ClCompile Include="FileListView.cpp" />
+    <ClCompile Include="LineSearch.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="PreCodeView.cpp" />
     <ClCompile Include="ReviewData.cpp" />
@@ -220,9 +222,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CodeReviewTool.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\CodeReviewTool.rc2" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="mainfram.bmp" />

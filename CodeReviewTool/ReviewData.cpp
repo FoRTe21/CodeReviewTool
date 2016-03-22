@@ -39,6 +39,9 @@ void CReviewData::Clear()
 	m_filepath.Empty();
 	m_revision.Empty();
 	m_comments.Empty();
+
+	m_lineNumber.clear();
+	m_lineNumberIter = m_lineNumber.begin();
 }
 
 CString CReviewData::GetFilePath()
@@ -64,4 +67,45 @@ void CReviewData::SetSourceCode(CString sourceCode)
 CString CReviewData::GetSourceCode()
 {
 	return m_sourceCode;
+}
+
+void CReviewData::AddLineNumber(int number)
+{
+	m_lineNumber.push_back(number);
+}
+
+int CReviewData::GetLineNumber()
+{
+	return (*m_lineNumberIter);
+}
+
+void CReviewData::NextLineNumber()
+{
+	if (m_lineNumberIter != m_lineNumber.end())
+	{
+		++m_lineNumberIter;
+	}
+	if (m_lineNumberIter == m_lineNumber.end())
+	{
+		--m_lineNumberIter;
+	}
+}
+
+void CReviewData::PrevLineNumber()
+{
+	if (m_lineNumberIter != m_lineNumber.begin())
+	{
+		--m_lineNumberIter;
+	}
+}
+
+void CReviewData::InitLineNumber()
+{
+	m_lineNumberIter = m_lineNumber.begin();
+}
+
+void CReviewData::GetReviewNSourceCode(CString* review, CString* sourceCode)
+{
+	*review = m_comments;
+	*sourceCode = m_sourceCode;
 }

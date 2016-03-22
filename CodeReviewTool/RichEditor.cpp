@@ -85,3 +85,11 @@ void CRichEditor::PrintLineNumber(CDC* hdc)
 
 	//g.ReleaseHDC(dc->m_hDC);
 }
+
+void CRichEditor::ScrollEditor(int lineNumber)
+{
+	int firstVisibleLine = this->GetFirstVisibleLine();
+	
+	int distance = lineNumber - firstVisibleLine;
+	LineScroll(distance - 4, 0);
+}

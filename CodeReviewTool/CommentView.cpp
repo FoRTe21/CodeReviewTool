@@ -12,9 +12,7 @@ IMPLEMENT_DYNCREATE(CCommentView, CView)
 
 CCommentView::CCommentView()
 {
-	m_cmtSourceCode = NULL;
-	m_numberEditCtrlWidth = 0;
-	m_maxLineNumber = 0;
+	m_commentSourceCode = NULL;
 }
 
 CCommentView::~CCommentView()
@@ -66,7 +64,7 @@ int CCommentView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	GetClientRect(&cr);
 
 	m_codeRichEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | 
-						  WS_VSCROLL | WS_HSCROLL,
+						  ES_READONLY | WS_VSCROLL | WS_HSCROLL,
 						  cr, this, IDC_CODERICHEDIT);
 
 	//m_codeRichEdit.SetEventMask(m_codeRichEdit.GetEventMask() | ENM_UPDATE);
@@ -96,64 +94,38 @@ void CCommentView::OnSize(UINT nType, int cx, int cy)
 	m_codeRichEdit.MoveWindow(&cr, 1);
 }
 
-void CCommentView::SetCmtSourceCode(LPTSTR sourceCode)
+void CCommentView::SetCommentSourceCode(LPTSTR sourceCode)
 {
 	// 예외처리 필요 NULL인지 아닌지.
-	m_cmtSourceCode = sourceCode;
+	m_commentSourceCode = sourceCode;
 
-	m_codeRichEdit.SetWindowTextW(m_cmtSourceCode);
+	m_codeRichEdit.SetWindowTextW(m_commentSourceCode);
 }
 
-LPWSTR CCommentView::GetCmtSourceCode()
+LPWSTR CCommentView::GetCommentSourceCode()
 {
 	int length = m_codeRichEdit.GetTextLength();
 
-	delete[] m_cmtSourceCode;
-	m_cmtSourceCode = NULL;
+	delete[] m_commentSourceCode;
+	m_commentSourceCode = NULL;
 
-	m_cmtSourceCode = new WCHAR[length + 1];
-	m_codeRichEdit.GetWindowTextW(m_cmtSourceCode, length * 2 + 1);
+	m_commentSourceCode = new WCHAR[length + 1];
+	m_codeRichEdit.GetWindowTextW(m_commentSourceCode, length * 2 + 1);
 
-	return m_cmtSourceCode;
-}
-
-int CCommentView::GetCmtSourceCodeLength()
-{
-	return m_codeRichEdit.GetTextLength();
-}
-
-void CCommentView::SrcLineCount()
-{
-	
-
-}
-
-BOOL CCommentView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
-{
-	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	/*if (LOWORD(wParam) == IDC_CODERICHEDIT)
-	{
-		MSGFILTER* mf = (MSGFILTER*)lParam;
-		switch (mf->msg)
-		{
-		case WM_COMMAND:
-			switch (HIWORD(wParam)) {
-			case EN_UPDATE:
-			{
-				//CPaintDC dc(m_codeRichEdit.FromHandle(m_codeRichEdit.m_hWnd));
-				//PrintLineNumber(&dc);
-				HDC hdc;
-				hdc = ::GetDC(m_codeRichEdit.m_hWnd);
-				PrintLineNumber(&hdc);
-				::ReleaseDC(m_codeRichEdit.m_hWnd, hdc);
-			}
-			}
-		}
-	}*/
-	return CView::OnNotify(wParam, lParam, pResult);
+	return m_commentSourceCode;
 }
 
 void CCommentView::PrintSourceCode(CString sourceCode)
 {
 	m_codeRichEdit.SetWindowTextW(sourceCode);
+}
+
+void CCommentView::ScrollEditor(int lineNumber)
+{
+	m_codeRichEdit.ScrollEditor(lineNumber);
+}
+
+void CCommentView::ClearViewEdit()
+{
+	m_codeRichEdit.SetWindowTextW(L"");
 }

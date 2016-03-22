@@ -18,8 +18,14 @@
 #define ID_VIEW_APPLOOK_OFF_2007_SILVER 217
 #define ID_VIEW_APPLOOK_OFF_2007_AQUA   218
 #define IDD_FILESELECT                  310
+#define IDD_DIALOG1                     313
+#define IDD_LINESEARCH                  313
 #define IDC_REVISION                    1000
 #define IDC_CODEFILE                    1001
+#define IDC_PREVLINEBUTTON              1002
+#define IDC_NEXTLINEBUTTON              1003
+#define IDC_EDIT1                       1004
+#define IDC_CURRENTLINE                 1004
 #define ID_32771                        32771
 #define ID_SAVE                         32772
 #define ID_32773                        32773
@@ -33,9 +39,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        313
+#define _APS_NEXT_RESOURCE_VALUE        315
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_CONTROL_VALUE         1005
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

@@ -20,6 +20,7 @@ public:
 	afx_msg void OnPaint();
 
 	void PrintLineNumber(CDC* dc);
+	void ScrollEditor(int lineNumber);
 };
 
 

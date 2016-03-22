@@ -8,8 +8,10 @@
 #include "CommentView.h"
 #include "DataProcessing.h"
 #include "FileListView.h"
+#include "LineSearch.h"
 
 #include "afxext.h"
+//enum Commands { CMD_INCREASE, CMD_DECREASE, CMD_GETCURRENTLINE, CMD_INIT };
 
 class CMainFrame : public CFrameWnd
 {
@@ -46,7 +48,8 @@ protected:  // 컨트롤 모음이 포함된 멤버입니다.
 	CDataProcessing m_dataProcessor;
 	CPreCodeView* m_ptPreView;
 	CCommentView* m_ptCmtView;
-	CFileListView* m_fileList;
+	CFileListView* m_fileListViewWnd;
+	CLineSearch* m_lineSearchWnd;
 
 	LPWSTR m_preSourceCodeFileName;
 	LPWSTR m_commentSourceCodeFileName;
@@ -68,11 +71,13 @@ public:
 	afx_msg void OnFileopen();
 
 	void OpenFileListView();
+	void OpenLineSearch();
+
 	void CloseFileListView();
-	void PrintReview(CString filepath);
-	void PrintSourceCode(CString filepath);
-//	virtual void DoDataExchange(CDataExchange* pDX);
-//	afx_msg void OnPaint();
+	void CloseLineSearch();
+
+	int ScrollSourceCodeEditor(int command);
+	void PrintAllTextDataOnEditCtrl(CString filepath);
 };
 
 

@@ -40,7 +40,7 @@ CMainFrame::CMainFrame()
 	// TODO: 여기에 멤버 초기화 코드를 추가합니다.
 	m_ptPreView = NULL;
 	m_ptCmtView = NULL;
-	m_fileList = NULL;
+	m_fileListViewWnd = NULL;
 }
 
 CMainFrame::~CMainFrame()
@@ -253,7 +253,6 @@ void CMainFrame::OnFileopen()
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	OPENFILENAME ofn;
 	WCHAR lpStrFile[MAX_PATH] = L"";
-	CString content;
 
 	memset(&ofn, 0, sizeof(OPENFILENAME));
 
@@ -265,47 +264,82 @@ void CMainFrame::OnFileopen()
 
 	GetOpenFileName(&ofn);
 
-	m_dataProcessor.ClearAllData();
-	m_dataProcessor.GetTextFromFile(lpStrFile, content);
-	m_dataProcessor.SetReviewText(content);
-	m_dataProcessor.FillReviewData();
+	if (m_dataProcessor.FillAllDataFromFile(lpStrFile) == false)
+	{
+		return;
+	}
+	
 	OpenFileListView();
 }
 
 void CMainFrame::CloseFileListView()
 {
-	m_fileList = NULL;
+	m_fileListViewWnd = NULL;
+	CloseLineSearch();
 }
 
 void CMainFrame::OpenFileListView()
 {
-	if (m_fileList != NULL)
+	if (m_fileListViewWnd != NULL)
 	{
-		m_fileList->DestroyWindow();
-		delete m_fileList;
-		m_fileList = NULL;
+		m_fileListViewWnd->DestroyWindow();
+		delete m_fileListViewWnd;
+		m_fileListViewWnd = NULL;
 	}
 
-	m_fileList = new CFileListView;
-	m_fileList->Create(IDD_FILESELECT, this);
-	m_fileList->InitRevisions(m_dataProcessor.GetRivisions());
-	m_fileList->InitReviews(m_dataProcessor.GetReviews());
-	m_fileList->ShowWindow(SW_SHOW);
+	m_fileListViewWnd = new CFileListView;
+	m_fileListViewWnd->MakeWindow(this, m_dataProcessor.GetRivisions(), m_dataProcessor.GetReviews());
+	OpenLineSearch();
 }
-void CMainFrame::PrintReview(CString filepath)
+
+void CMainFrame::PrintAllTextDataOnEditCtrl(CString filepath)
 {
-	CString review;
-	
-	review = m_dataProcessor.GetReview(filepath);
+	CString review, sourceCode;
+
+	m_dataProcessor.GetReviewNCodeText(filepath, &review, &sourceCode);
 	m_ptPreView->PrintComments(review);
-	
+
+	m_ptCmtView->ClearViewEdit();
+	m_ptCmtView->PrintSourceCode(sourceCode);
 }
 
-void CMainFrame::PrintSourceCode(CString filepath)
+void CMainFrame::OpenLineSearch()
 {
-	CString sourceCode;
+	m_lineSearchWnd = new CLineSearch;
+	m_lineSearchWnd->Create(IDD_LINESEARCH, this);
+	m_lineSearchWnd->ShowWindow(SW_SHOW);
+}
 
-	sourceCode = m_dataProcessor.GetSourceCode(filepath);
-	m_ptCmtView->PrintSourceCode(sourceCode);
-	m_ptCmtView->UpdateData(false);
+void CMainFrame::CloseLineSearch()
+{
+	m_lineSearchWnd->PostNcDestroy();
+	m_lineSearchWnd = NULL;
+}
+
+int CMainFrame::ScrollSourceCodeEditor(int command)
+{
+	int line = 0;
+	switch (command)
+	{
+	case CMD_INCREASE:
+	{
+		line = m_dataProcessor.EditorScrollControl(command);
+		break;
+	}
+	case CMD_DECREASE:
+	{
+		line = m_dataProcessor.EditorScrollControl(command);
+		break;
+	}
+	case CMD_INIT:
+	{
+		line = m_dataProcessor.EditorScrollControl(command);
+		break;
+	}
+	}
+
+	m_lineSearchWnd->SetTextOnEdit(line);
+	m_ptCmtView->ScrollEditor(line);
+
+	return line;
 }

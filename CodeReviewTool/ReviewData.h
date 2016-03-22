@@ -10,6 +10,12 @@ protected:
 
 	CString m_comments;
 	CString m_sourceCode;
+	std::list <int> m_lineNumber;
+	std::list<int>::iterator m_lineNumberIter;
+
+protected:
+	CString GetComment();
+	CString GetSourceCode();
 
 public:
 	CReviewData();
@@ -17,13 +23,19 @@ public:
 
 	void SetFilePath(CString filepath);
 	void SetRevision(CString revision);
+	
 	void SetSourceCode(CString sourceCode);
 	void AddComments(CString comments);
+	void AddLineNumber(int number);
 
 	CString GetFilePath();
 	CString GetRevision();
-	CString GetComment();
-	CString GetSourceCode();
+	
+	int GetLineNumber();
+	void GetReviewNSourceCode(CString* review, CString* sourceCode);
+	void NextLineNumber();
+	void PrevLineNumber();
+	void InitLineNumber();
 	void Clear();
 };
 
