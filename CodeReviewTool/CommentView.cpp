@@ -10,9 +10,9 @@
 
 IMPLEMENT_DYNCREATE(CCommentView, CView)
 
-CCommentView::CCommentView()
+CCommentView::CCommentView() 
+	: m_commentSourceCode(NULL)
 {
-	m_commentSourceCode = NULL;
 }
 
 CCommentView::~CCommentView()

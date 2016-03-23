@@ -5,6 +5,10 @@
 CDataProcessing::CDataProcessing()
 {
 	m_reviewText.Empty();
+
+	WCHAR currentDirectory[MAX_PATH] = { 0, };
+	GetCurrentDirectory(_countof(currentDirectory), currentDirectory);
+	m_sourceCodesFilePath.Format(L"%s\\temporaryCodeDir", currentDirectory);
 }
 
 
@@ -17,29 +21,41 @@ bool CDataProcessing::GetTextFromFile(LPWSTR filepath, CString& contents)
 {
 	CFile reviewFile;
 	LPSTR buffer = NULL;
-	int fileSize = 0;
+	int fileSize = 0, unicode;
 
 	if (reviewFile.Open(filepath, CFile::modeRead, 0) == NULL)
 	{
+		::AfxMessageBox(L"파일을 열수 없습니다", 0, 0);
 		return false;
 	}
 	
-	fileSize = reviewFile.GetLength();
+	unicode = CheckEncoding(&reviewFile, buffer);
+	if (unicode == ANSI)
+	{
+		fileSize = reviewFile.GetLength();
 
-	buffer = new char[fileSize + 1];
-	buffer[fileSize] = '\0';
+		buffer = new char[fileSize + 1];
+		buffer[fileSize] = '\0';
 
-	reviewFile.Read(buffer, reviewFile.GetLength());
+		reviewFile.Read(buffer, reviewFile.GetLength());
 
-	contents = ConvertMultibyteToUnicode(buffer);
+		CString tempContents(buffer);
+		contents = tempContents;
 
-	delete[] buffer;
-	reviewFile.Close();
-	
-	return true;
+		delete[] buffer;
+		reviewFile.Close();
+
+		return true;
+	}
+	else
+	{
+		::AfxMessageBox(L"ANSI UNICODE만 지원", 0, 0);
+		reviewFile.Close();
+		return false;
+	}
 }
 
-int CheckEncoding(CFile* file, LPSTR buffer)
+int CDataProcessing::CheckEncoding(CFile* file, LPSTR buffer)
 {
 	unsigned char encodingHeader[2] = { 0, };
 	DWORD encodingType = 0;
@@ -104,8 +120,13 @@ CString CDataProcessing::ConvertMultibyteToUnicode(LPSTR pMultibyte)
 
 bool CDataProcessing::FillReviewData()
 {
-	CString oneLine, tmpString, revision, tmpComment;
-	int index = 0, tmpIndex = 0;
+	CString oneLine;
+	CString tmpString;
+	CString revision;
+	
+
+	int index = 0;
+	int tmpIndex = 0;
 	CReviewData tempReviewData;
 	bool sameFileFlag = false;
 
@@ -114,6 +135,7 @@ bool CDataProcessing::FillReviewData()
 
 	if (tmpString.CompareNoCase(L"url") == 0)
 	{
+		oneLine.Delete(0, wcslen(L"url: "));
 		m_url = oneLine;
 	}
 	else
@@ -134,6 +156,7 @@ bool CDataProcessing::FillReviewData()
 				tempReviewData.AddComments(L"\r\n");
 				sameFileFlag = false;
 			}
+			oneLine.Delete(0, 4);
 			revision = oneLine;
 			m_revisions.push_back(revision);
 		}
@@ -142,24 +165,43 @@ bool CDataProcessing::FillReviewData()
 			if (sameFileFlag == false)
 			{
 				CString content;
+				CString pureFileName;
+				CString filepath;
+
 				sameFileFlag = true;
 				tempReviewData.Clear();
-				tempReviewData.SetFilePath(oneLine);
 				tempReviewData.SetRevision(revision);
 				oneLine.Delete(0, 3);
-				GetTextFromFile((LPWSTR)(LPCWSTR)oneLine, content);
+				ExportFileFromRepository(revision, oneLine);
+				pureFileName = ExtractFileNameFromFilePath(oneLine);
+				tempReviewData.SetFilePath(pureFileName);
+				filepath.Format(L"%s\\%s", m_sourceCodesFilePath, pureFileName);
+				if (GetTextFromFile((LPWSTR)(LPCWSTR)filepath, content) == true)
+				{
+					DeleteSourceCodeFile(filepath);
+				}
 				tempReviewData.SetSourceCode(content);
 				tempReviewData.AddComments(L"\r\n");
 			}
 			else
 			{
 				CString content;
+				CString pureFileName;
+				CString filepath;
+
 				tempReviewData.SetRevision(revision);
 				m_reviews.push_back(tempReviewData);
 				tempReviewData.Clear();
-				tempReviewData.SetFilePath(oneLine);
+				
 				oneLine.Delete(0, 3);
-				GetTextFromFile((LPWSTR)(LPCWSTR)oneLine, content);
+				ExportFileFromRepository(revision, oneLine);
+				pureFileName = ExtractFileNameFromFilePath(oneLine);
+				tempReviewData.SetFilePath(pureFileName);
+				filepath.Format(L"%s\\%s", m_sourceCodesFilePath, pureFileName);
+				if (GetTextFromFile((LPWSTR)(LPCWSTR)filepath, content) == true)
+				{
+					DeleteSourceCodeFile(filepath);
+				}
 				tempReviewData.SetSourceCode(content);
 				tempReviewData.AddComments(L"\r\n");
 			}
@@ -268,6 +310,8 @@ bool CDataProcessing::FillAllDataFromFile(LPWSTR filepath)
 	{
 		return false;
 	}
+
+	return true;
 }
 
 bool CDataProcessing::GetReviewNCodeText(CString filepath, CString* reviewText, CString* sourceCodeText)
@@ -278,7 +322,7 @@ bool CDataProcessing::GetReviewNCodeText(CString filepath, CString* reviewText, 
 	{
 		if (filepath.CompareNoCase(iter->GetFilePath()) == 0)
 		{
-			m_currentReviewData = (CReviewData*)&(*iter);
+			m_currentReviewData = &(*iter);
 			m_currentReviewData->InitLineNumber();
 			iter->GetReviewNSourceCode(reviewText, sourceCodeText);
 			return true;
@@ -286,4 +330,46 @@ bool CDataProcessing::GetReviewNCodeText(CString filepath, CString* reviewText, 
 	}
 
 	return false;
+}
+
+bool CDataProcessing::ExportFileFromRepository(CString revision, CString filepath)
+{
+	CString command;
+	STARTUPINFO startupInfomation = { 0 };
+	PROCESS_INFORMATION processInfomation;
+	bool result = false;
+	startupInfomation.cb = sizeof(STARTUPINFO);
+	command.Format(L"svn export -r %s file:///%s%s %s", revision, m_url, filepath, m_sourceCodesFilePath);
+
+	result = CreateProcessW(NULL, (LPWSTR)(LPCWSTR)command, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfomation, &processInfomation);
+
+	if (result == false)
+	{
+		return false;
+	}
+	else
+	{
+		WaitForSingleObject(processInfomation.hProcess, INFINITE);
+	}
+	return true;
+}
+
+CString CDataProcessing::ExtractFileNameFromFilePath(CString filepath)
+{
+	int index = 0;
+	CString tempString = NULL;
+	CString parsedString = NULL;
+	while ((parsedString = filepath.Tokenize(L"/", index)) != L"")
+	{
+		tempString = parsedString;
+	}
+	return tempString;
+
+}
+
+bool CDataProcessing::DeleteSourceCodeFile(CString filepath)
+{
+	DeleteFileW((LPCWSTR)filepath);
+
+	return true;
 }

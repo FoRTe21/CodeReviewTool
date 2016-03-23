@@ -13,7 +13,6 @@ CReviewData::~CReviewData()
 
 void CReviewData::SetFilePath(CString filepath)
 {
-	filepath.Delete(0, 3);
 	m_filepath = filepath;
 }
 
@@ -24,14 +23,7 @@ void CReviewData::SetRevision(CString revision)
 
 void CReviewData::AddComments(CString comments)
 {
-	if (m_comments.IsEmpty())
-	{
-		m_comments.Format(L"%s\r\n", comments);
-	}
-	else
-	{
 		m_comments.AppendFormat(L"%s\r\n", comments);
-	}
 }
 
 void CReviewData::Clear()
@@ -106,6 +98,12 @@ void CReviewData::InitLineNumber()
 
 void CReviewData::GetReviewNSourceCode(CString* review, CString* sourceCode)
 {
-	*review = m_comments;
-	*sourceCode = m_sourceCode;
+	if (review != NULL)
+	{
+		*review = m_comments;
+	}
+	if (sourceCode != NULL)
+	{
+		*sourceCode = m_sourceCode;
+	}
 }

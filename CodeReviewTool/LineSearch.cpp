@@ -44,7 +44,7 @@ void CLineSearch::OnBnClickedPrevlinebutton()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	CMainFrame* mf = (CMainFrame*)AfxGetMainWnd();
 
-	int line = mf->ScrollSourceCodeEditor(CMD_DECREASE);
+	int line = mf->ScrollSourceCodeEditor(CDataProcessing::CMD_DECREASE);
 	//SetTextOnEdit(line);
 }
 
@@ -54,7 +54,7 @@ void CLineSearch::OnBnClickedNextlinebutton()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	CMainFrame* mf = (CMainFrame*)AfxGetMainWnd();
 
-	int line = mf->ScrollSourceCodeEditor(CMD_INCREASE);
+	int line = mf->ScrollSourceCodeEditor(CDataProcessing::CMD_INCREASE);
 	//SetTextOnEdit(line);
 }
 
@@ -70,8 +70,8 @@ void CLineSearch::PostNcDestroy()
 void CLineSearch::OnClose()
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	DestroyWindow();
-	CDialogEx::OnClose();
+	//DestroyWindow();
+	//CDialogEx::OnClose();
 }
 
 void CLineSearch::SetTextOnEdit(int number)
@@ -79,5 +79,4 @@ void CLineSearch::SetTextOnEdit(int number)
 	CString windowText;
 	windowText.Format(L"%d", number);
 	m_currentLine.SetWindowTextW(windowText);
-	//m_currentLine.SetDlgItemInt(number, false);
 }

@@ -11,7 +11,6 @@
 #include "LineSearch.h"
 
 #include "afxext.h"
-//enum Commands { CMD_INCREASE, CMD_DECREASE, CMD_GETCURRENTLINE, CMD_INIT };
 
 class CMainFrame : public CFrameWnd
 {

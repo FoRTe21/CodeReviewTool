@@ -12,7 +12,9 @@
 IMPLEMENT_DYNAMIC(CFileListView, CDialogEx)
 
 CFileListView::CFileListView(CWnd* pParent /*=NULL*/)
-	: CDialogEx(IDD_FILESELECT, pParent)
+	: CDialogEx(IDD_FILESELECT, pParent),
+	m_reviews(NULL),
+	m_revisions(NULL)
 {
 
 }
@@ -96,12 +98,11 @@ void CFileListView::ClearRevisionLB()
 void CFileListView::OnLbnDblclkCodefile()
 {
 	CString filepath;
-	CMainFrame* mf;
 	
 	m_fileNameListBox.GetText(m_fileNameListBox.GetCurSel(), filepath);
-	mf = (CMainFrame*)AfxGetMainWnd();
+	CMainFrame* mf = (CMainFrame*)AfxGetMainWnd();
 	mf->PrintAllTextDataOnEditCtrl(filepath);
-	mf->ScrollSourceCodeEditor(CMD_INIT);
+	mf->ScrollSourceCodeEditor(CDataProcessing::CMD_INIT);
 }
 
 void CFileListView::InitListControls(std::list<CString>* revisions, std::list<CReviewData>* reviews)

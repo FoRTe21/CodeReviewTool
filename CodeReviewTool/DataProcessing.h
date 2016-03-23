@@ -2,10 +2,13 @@
 #include <list>
 #include "ReviewData.h"
 
-enum Commands{ CMD_INCREASE, CMD_DECREASE, CMD_GETCURRENTLINE, CMD_INIT };
-enum Encodings { UNICODE_, UNICODE_BIGENDIAN, UTF8, ANSI };
+
 class CDataProcessing
 {
+public:
+	enum Commands { CMD_INCREASE, CMD_DECREASE, CMD_GETCURRENTLINE, CMD_INIT };
+	enum Encodings { UNICODE_, UNICODE_BIGENDIAN, UTF8, ANSI };
+
 protected:
 	CString m_reviewText;
 
@@ -14,6 +17,8 @@ protected:
 	std::list<CReviewData> m_reviews;
 
 	CReviewData* m_currentReviewData;
+	CString m_sourceCodesFilePath;
+
 protected:
 	CString ConvertMultibyteToUnicode(LPSTR pMultibyte);
 	void ClearAllData();
@@ -22,6 +27,9 @@ protected:
 	void SetReviewText(CString text);
 	int AddLineNumbers(CString numbers, CReviewData* reviewData);
 	int CheckEncoding(CFile* file, LPSTR buffer);
+	bool ExportFileFromRepository(CString revision, CString filepath);
+	CString ExtractFileNameFromFilePath(CString filepath);
+	bool DeleteSourceCodeFile(CString filepath);
 
 public:
 	CDataProcessing();

@@ -321,17 +321,17 @@ int CMainFrame::ScrollSourceCodeEditor(int command)
 	int line = 0;
 	switch (command)
 	{
-	case CMD_INCREASE:
+	case CDataProcessing::CMD_INCREASE:
 	{
 		line = m_dataProcessor.EditorScrollControl(command);
 		break;
 	}
-	case CMD_DECREASE:
+	case CDataProcessing::CMD_DECREASE:
 	{
 		line = m_dataProcessor.EditorScrollControl(command);
 		break;
 	}
-	case CMD_INIT:
+	case CDataProcessing::CMD_INIT:
 	{
 		line = m_dataProcessor.EditorScrollControl(command);
 		break;
