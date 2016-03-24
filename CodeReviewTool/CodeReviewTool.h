@@ -8,7 +8,6 @@
 #endif
 
 #include "resource.h"       // 주 기호입니다.
-#include <gdiplus.h>
 
 // CCodeReviewToolApp:
 // 이 클래스의 구현에 대해서는 CodeReviewTool.cpp을 참조하십시오.
@@ -17,7 +16,6 @@
 class CCodeReviewToolApp : public CWinApp
 {
 protected:
-	ULONG_PTR m_gdiplusToken;
 	
 public:
 	CCodeReviewToolApp();

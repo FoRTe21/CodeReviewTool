@@ -17,7 +17,7 @@ CDataProcessing::~CDataProcessing()
 
 }
 
-bool CDataProcessing::GetTextFromFile(LPWSTR filepath, CString& contents)
+bool CDataProcessing::GetTextFromFile(CString filepath, CString& contents)
 {
 	CFile reviewFile;
 	LPSTR buffer = NULL;
@@ -29,7 +29,7 @@ bool CDataProcessing::GetTextFromFile(LPWSTR filepath, CString& contents)
 		return false;
 	}
 	
-	unicode = CheckEncoding(&reviewFile, buffer);
+	unicode = CheckEncoding(&reviewFile);
 	if (unicode == ANSI)
 	{
 		fileSize = reviewFile.GetLength();
@@ -39,8 +39,7 @@ bool CDataProcessing::GetTextFromFile(LPWSTR filepath, CString& contents)
 
 		reviewFile.Read(buffer, reviewFile.GetLength());
 
-		CString tempContents(buffer);
-		contents = tempContents;
+		contents = CString(buffer);
 
 		delete[] buffer;
 		reviewFile.Close();
@@ -55,7 +54,7 @@ bool CDataProcessing::GetTextFromFile(LPWSTR filepath, CString& contents)
 	}
 }
 
-int CDataProcessing::CheckEncoding(CFile* file, LPSTR buffer)
+int CDataProcessing::CheckEncoding(CFile* file)
 {
 	unsigned char encodingHeader[2] = { 0, };
 	DWORD encodingType = 0;
@@ -162,12 +161,11 @@ bool CDataProcessing::FillReviewData()
 		}
 		else if (tmpString.CompareNoCase(L"*") == 0)
 		{
+			CString content;
+			CString pureFileName;
+			CString filepath;
 			if (sameFileFlag == false)
 			{
-				CString content;
-				CString pureFileName;
-				CString filepath;
-
 				sameFileFlag = true;
 				tempReviewData.Clear();
 				tempReviewData.SetRevision(revision);
@@ -176,7 +174,7 @@ bool CDataProcessing::FillReviewData()
 				pureFileName = ExtractFileNameFromFilePath(oneLine);
 				tempReviewData.SetFilePath(pureFileName);
 				filepath.Format(L"%s\\%s", m_sourceCodesFilePath, pureFileName);
-				if (GetTextFromFile((LPWSTR)(LPCWSTR)filepath, content) == true)
+				if (GetTextFromFile(filepath, content) == true)
 				{
 					DeleteSourceCodeFile(filepath);
 				}
@@ -185,10 +183,6 @@ bool CDataProcessing::FillReviewData()
 			}
 			else
 			{
-				CString content;
-				CString pureFileName;
-				CString filepath;
-
 				tempReviewData.SetRevision(revision);
 				m_reviews.push_back(tempReviewData);
 				tempReviewData.Clear();
@@ -198,7 +192,7 @@ bool CDataProcessing::FillReviewData()
 				pureFileName = ExtractFileNameFromFilePath(oneLine);
 				tempReviewData.SetFilePath(pureFileName);
 				filepath.Format(L"%s\\%s", m_sourceCodesFilePath, pureFileName);
-				if (GetTextFromFile((LPWSTR)(LPCWSTR)filepath, content) == true)
+				if (GetTextFromFile(filepath, content) == true)
 				{
 					DeleteSourceCodeFile(filepath);
 				}
@@ -296,7 +290,7 @@ int CDataProcessing::EditorScrollControl(int command)
 	return m_currentReviewData->GetLineNumber();
 }
 
-bool CDataProcessing::FillAllDataFromFile(LPWSTR filepath)
+bool CDataProcessing::FillAllDataFromFile(CString filepath)
 {
 	CString content;
 
@@ -316,9 +310,7 @@ bool CDataProcessing::FillAllDataFromFile(LPWSTR filepath)
 
 bool CDataProcessing::GetReviewNCodeText(CString filepath, CString* reviewText, CString* sourceCodeText)
 {
-	std::list<CReviewData>::iterator iter;
-
-	for (iter = m_reviews.begin(); iter != m_reviews.end(); iter++)
+	for (auto iter = m_reviews.begin(); iter != m_reviews.end(); iter++)
 	{
 		if (filepath.CompareNoCase(iter->GetFilePath()) == 0)
 		{
@@ -339,7 +331,7 @@ bool CDataProcessing::ExportFileFromRepository(CString revision, CString filepat
 	PROCESS_INFORMATION processInfomation;
 	bool result = false;
 	startupInfomation.cb = sizeof(STARTUPINFO);
-	command.Format(L"svn export -r %s file:///%s%s %s", revision, m_url, filepath, m_sourceCodesFilePath);
+	command.Format(L"svn export -r %s %s%s %s", revision, m_url, filepath, m_sourceCodesFilePath);
 
 	result = CreateProcessW(NULL, (LPWSTR)(LPCWSTR)command, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfomation, &processInfomation);
 
@@ -357,8 +349,8 @@ bool CDataProcessing::ExportFileFromRepository(CString revision, CString filepat
 CString CDataProcessing::ExtractFileNameFromFilePath(CString filepath)
 {
 	int index = 0;
-	CString tempString = NULL;
-	CString parsedString = NULL;
+	CString tempString;
+	CString parsedString;
 	while ((parsedString = filepath.Tokenize(L"/", index)) != L"")
 	{
 		tempString = parsedString;

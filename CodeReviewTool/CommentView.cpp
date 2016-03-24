@@ -11,7 +11,6 @@
 IMPLEMENT_DYNCREATE(CCommentView, CView)
 
 CCommentView::CCommentView() 
-	: m_commentSourceCode(NULL)
 {
 }
 
@@ -79,6 +78,11 @@ int CCommentView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_codeRichEdit.SetDefaultCharFormat(cf);
 
 	m_codeRichEdit.SendMessage(EM_SETMARGINS, EC_LEFTMARGIN, 35 & 0xFFFF);
+
+	long mask = m_codeRichEdit.GetEventMask();
+	m_codeRichEdit.SetEventMask(mask |= ENM_CHANGE);
+
+	//reconfigure CSyntaxColorizer's default keyword groupings	
 	return 0;
 }
 
@@ -94,29 +98,9 @@ void CCommentView::OnSize(UINT nType, int cx, int cy)
 	m_codeRichEdit.MoveWindow(&cr, 1);
 }
 
-void CCommentView::SetCommentSourceCode(LPTSTR sourceCode)
-{
-	// 예외처리 필요 NULL인지 아닌지.
-	m_commentSourceCode = sourceCode;
-
-	m_codeRichEdit.SetWindowTextW(m_commentSourceCode);
-}
-
-LPWSTR CCommentView::GetCommentSourceCode()
-{
-	int length = m_codeRichEdit.GetTextLength();
-
-	delete[] m_commentSourceCode;
-	m_commentSourceCode = NULL;
-
-	m_commentSourceCode = new WCHAR[length + 1];
-	m_codeRichEdit.GetWindowTextW(m_commentSourceCode, length * 2 + 1);
-
-	return m_commentSourceCode;
-}
-
 void CCommentView::PrintSourceCode(CString sourceCode)
 {
+	m_sourceCode = sourceCode;
 	m_codeRichEdit.SetWindowTextW(sourceCode);
 }
 
@@ -128,4 +112,32 @@ void CCommentView::ScrollEditor(int lineNumber)
 void CCommentView::ClearViewEdit()
 {
 	m_codeRichEdit.SetWindowTextW(L"");
+}
+
+BOOL CCommentView::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+	/*if (LOWORD(wParam) == IDC_CODERICHEDIT)
+	{
+		MSGFILTER *mf = (MSGFILTER*)lParam;
+		switch (mf->msg)
+		{
+		case WM_COMMAND:
+		{
+			switch (HIWORD(mf->wParam))
+			{
+			case EN_CHANGE:
+			{
+				int len = m_codeRichEdit.LineLength();
+				int start = m_codeRichEdit.LineIndex();
+
+				//call the colorizer
+				m_syntaxColorizer.Colorize(start, start + len, &m_codeRichEdit);
+				break;
+			}
+			}
+		}
+		}
+	}*/
+	return CView::OnNotify(wParam, lParam, pResult);
 }

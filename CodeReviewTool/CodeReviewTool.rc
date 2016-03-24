@@ -86,7 +86,6 @@ BEGIN
     POPUP "파일(&F)"
     BEGIN
         MENUITEM "파일열기",                        ID_FILEOPEN
-        MENUITEM "저장",                          ID_SAVE
         MENUITEM "끝내기(&X)",                     ID_APP_EXIT
     END
     POPUP "편집(&E)"
@@ -361,7 +360,7 @@ END
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
 LANGUAGE 18, 1
-//#include "res\CodeReviewTool.rc2"  // Microsoft Visual C++ 이외의 다른 도구에서 편집한 리소스입니다.
+#include "res\CodeReviewTool.rc2"  // Microsoft Visual C++ 이외의 다른 도구에서 편집한 리소스입니다.
 #include "l.KOR\afxres.rc"      // 표준 구성 요소
 #endif
 

@@ -22,11 +22,11 @@ protected:
 protected:
 	CString ConvertMultibyteToUnicode(LPSTR pMultibyte);
 	void ClearAllData();
-	bool GetTextFromFile(LPWSTR filepath, CString& contents);
+	bool GetTextFromFile(CString filepath, CString& contents);
 	bool FillReviewData();
 	void SetReviewText(CString text);
 	int AddLineNumbers(CString numbers, CReviewData* reviewData);
-	int CheckEncoding(CFile* file, LPSTR buffer);
+	int CheckEncoding(CFile* file);
 	bool ExportFileFromRepository(CString revision, CString filepath);
 	CString ExtractFileNameFromFilePath(CString filepath);
 	bool DeleteSourceCodeFile(CString filepath);
@@ -41,7 +41,7 @@ public:
 	int EditorScrollControl(int command);
 	
 
-	bool FillAllDataFromFile(LPWSTR filepath);
+	bool FillAllDataFromFile(CString filepath);
 	bool GetReviewNCodeText(CString filepath, CString* reviewText, CString* sourceCodeText);
 };
 

@@ -104,9 +104,7 @@ BOOL CCodeReviewToolApp::InitInstance()
 	pFrame->ShowWindow(SW_SHOW);
 	pFrame->UpdateWindow();
 
-	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 
-	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 	return TRUE;
 }
 
@@ -115,7 +113,6 @@ int CCodeReviewToolApp::ExitInstance()
 	//TODO: 추가한 추가 리소스를 처리합니다.
 	AfxOleTerm(FALSE);
 
-	Gdiplus::GdiplusShutdown(m_gdiplusToken);
 	return CWinApp::ExitInstance();
 }
 

@@ -43,8 +43,7 @@ END_MESSAGE_MAP()
 void CFileListView::PostNcDestroy()
 {
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	CMainFrame* mf;
-	mf = (CMainFrame*)AfxGetMainWnd();
+	CMainFrame* mf = (CMainFrame*)AfxGetMainWnd();
 
 	mf->CloseFileListView();
 	delete this;
@@ -62,10 +61,9 @@ void CFileListView::OnClose()
 void CFileListView::ViewFileListByIndex(int index)
 {
 	CString rivision;
-	std::list<CReviewData>::iterator iter;
 
 	m_revisionListBox.GetText(index, rivision);
-	for (iter = m_reviews->begin(); iter != m_reviews->end(); iter++)
+	for (auto iter = m_reviews->begin(); iter != m_reviews->end(); iter++)
 	{
 		if (rivision.CompareNoCase(iter->GetRevision()) == 0)
 		{
@@ -107,10 +105,9 @@ void CFileListView::OnLbnDblclkCodefile()
 
 void CFileListView::InitListControls(std::list<CString>* revisions, std::list<CReviewData>* reviews)
 {
-	std::list<CString>::iterator iter;
 	m_revisions = revisions;
 
-	for (iter = m_revisions->begin(); iter != m_revisions->end(); iter++)
+	for (auto iter = m_revisions->begin(); iter != m_revisions->end(); iter++)
 	{
 		m_revisionListBox.AddString(*iter);
 	}

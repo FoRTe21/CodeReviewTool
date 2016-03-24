@@ -36,11 +36,11 @@ static UINT indicators[] =
 // CMainFrame 생성/소멸
 
 CMainFrame::CMainFrame()
+	: m_ptPreView(NULL),
+	m_ptCmtView(NULL),
+	m_fileListViewWnd(NULL)
 {
 	// TODO: 여기에 멤버 초기화 코드를 추가합니다.
-	m_ptPreView = NULL;
-	m_ptCmtView = NULL;
-	m_fileListViewWnd = NULL;
 }
 
 CMainFrame::~CMainFrame()

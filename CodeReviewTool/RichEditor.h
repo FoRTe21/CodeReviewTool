@@ -12,7 +12,7 @@ public:
 	virtual ~CRichEditor();
 
 protected:
-	
+	const int m_gabFromUpperBound;
 
 protected:
 	DECLARE_MESSAGE_MAP()

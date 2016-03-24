@@ -10,7 +10,7 @@
 
 IMPLEMENT_DYNAMIC(CRichEditor, CRichEditCtrl)
 
-CRichEditor::CRichEditor()
+CRichEditor::CRichEditor() : m_gabFromUpperBound(4)
 {
 
 }
@@ -33,6 +33,9 @@ END_MESSAGE_MAP()
 
 void CRichEditor::OnPaint()
 {
+	
+	SendMessage(EM_SETMARGINS, EC_LEFTMARGIN, 35 & 0xFFFF);
+
 	CRichEditCtrl::OnPaint();
 
 	CDC* pDC = GetDC();
@@ -42,7 +45,6 @@ void CRichEditor::OnPaint()
 
 void CRichEditor::PrintLineNumber(CDC* hdc)
 {
-	//Gdiplus::Graphics g(dc->m_hDC);
 
 	HBRUSH B = CreateSolidBrush(RGB(0, 0, 0));
 	int firstVisibleLine = this->GetFirstVisibleLine();
@@ -75,15 +77,13 @@ void CRichEditor::PrintLineNumber(CDC* hdc)
 	this->GetRect(&cr);
 	cr.right = 35 & 0xFFFF;
 	int posibleVisibleLineCount = lineHeight == 0 ? 1 : (cr.Height() / lineHeight);
-
+	
 	CString text;
 	for (int i = 0; i < posibleVisibleLineCount && i < lineCount; i++)
 	{
 		text.Format(L"%d", (firstVisibleLine + i + 1));
 		TextOut(*hdc, 0, (i * lineHeight), (LPCWSTR)text, text.GetLength());
 	}
-
-	//g.ReleaseHDC(dc->m_hDC);
 }
 
 void CRichEditor::ScrollEditor(int lineNumber)
@@ -91,5 +91,15 @@ void CRichEditor::ScrollEditor(int lineNumber)
 	int firstVisibleLine = this->GetFirstVisibleLine();
 	
 	int distance = lineNumber - firstVisibleLine;
-	LineScroll(distance - 4, 0);
+	LineScroll(distance - m_gabFromUpperBound, 0);
+
+	int numberBegin = 0;
+
+	int numberIndex = LineIndex(lineNumber);
+	if ((numberBegin = numberIndex) != -1)
+	{
+		int numberEnd = numberBegin + LineLength(numberIndex);
+		SetSel(numberBegin, numberEnd);
+		
+	}
 }

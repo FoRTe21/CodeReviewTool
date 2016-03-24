@@ -1,9 +1,7 @@
 #pragma once
 
 #define IDC_CODERICHEDIT 101
-#define IDC_NUMRICHEDIT 102
 
-#define LINELENGTH 30
 // CCommentView 뷰입니다.
 #include "RichEditor.h"
 
@@ -12,7 +10,7 @@ class CCommentView : public CView
 	DECLARE_DYNCREATE(CCommentView)
 protected:
 	CRichEditor m_codeRichEdit;
-	LPWSTR m_commentSourceCode;
+	CString m_sourceCode;
 
 protected:
 	CCommentView();           // 동적 만들기에 사용되는 protected 생성자입니다.
@@ -33,12 +31,11 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 public:
-	void SetCommentSourceCode(LPTSTR sourceCode);
-	LPWSTR GetCommentSourceCode();
 	void ClearViewEdit();
 
 	void PrintSourceCode(CString sourceCode);
 
 	void ScrollEditor(int lineNumber);
+	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 };
 
