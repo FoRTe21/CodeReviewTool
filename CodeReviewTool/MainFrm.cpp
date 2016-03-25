@@ -322,20 +322,14 @@ int CMainFrame::ScrollSourceCodeEditor(int command)
 	switch (command)
 	{
 	case CDataProcessing::CMD_INCREASE:
-	{
 		line = m_dataProcessor.EditorScrollControl(command);
 		break;
-	}
 	case CDataProcessing::CMD_DECREASE:
-	{
 		line = m_dataProcessor.EditorScrollControl(command);
 		break;
-	}
 	case CDataProcessing::CMD_INIT:
-	{
 		line = m_dataProcessor.EditorScrollControl(command);
 		break;
-	}
 	}
 
 	m_lineSearchWnd->SetTextOnEdit(line);

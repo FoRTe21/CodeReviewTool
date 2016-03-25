@@ -10,13 +10,22 @@
 
 IMPLEMENT_DYNAMIC(CRichEditor, CRichEditCtrl)
 
-CRichEditor::CRichEditor() : m_gabFromUpperBound(4)
+CRichEditor::CRichEditor()
+	: m_gabFromUpperBound(4),
+	m_bHighlightingLine(false),
+	m_gpToken(NULL),
+	m_lightBlue(Gdiplus::Color(50,0,0,255))
 {
-
+	Gdiplus::GdiplusStartupInput m_gpsi;
+	Gdiplus::GdiplusStartup(&m_gpToken, &m_gpsi, NULL);
 }
 
 CRichEditor::~CRichEditor()
 {
+	if (m_gpToken != NULL)
+	{
+		Gdiplus::GdiplusShutdown(m_gpToken);
+	}
 }
 
 
@@ -45,6 +54,9 @@ void CRichEditor::OnPaint()
 
 void CRichEditor::PrintLineNumber(CDC* hdc)
 {
+	Gdiplus::Graphics graphics(*hdc);
+	m_highlightingColor = m_lightBlue;
+	Gdiplus::SolidBrush highlighting(m_highlightingColor);
 
 	HBRUSH B = CreateSolidBrush(RGB(0, 0, 0));
 	int firstVisibleLine = this->GetFirstVisibleLine();
@@ -63,18 +75,10 @@ void CRichEditor::PrintLineNumber(CDC* hdc)
 	this->SendMessage(EM_POSFROMCHAR, (WPARAM)&point1, secondLineIndex);
 	this->SendMessage(EM_POSFROMCHAR, (WPARAM)&point2, 0);
 
-	POINT caretPosition1;
-	POINT caretPosition2;
+	int lineHeight = point1.y - point2.y;
 
-	caretPosition1 = point1;
-	caretPosition2 = point2;
-
-	int lineHeight = caretPosition1.y - caretPosition2.y;
-
-	TEXTMETRIC tm;
-	::GetTextMetrics(*hdc, &tm);
 	CRect cr;
-	this->GetRect(&cr);
+	GetRect(&cr);
 	cr.right = 35 & 0xFFFF;
 	int posibleVisibleLineCount = lineHeight == 0 ? 1 : (cr.Height() / lineHeight);
 	
@@ -83,6 +87,10 @@ void CRichEditor::PrintLineNumber(CDC* hdc)
 	{
 		text.Format(L"%d", (firstVisibleLine + i + 1));
 		TextOut(*hdc, 0, (i * lineHeight), (LPCWSTR)text, text.GetLength());
+	}
+	if (m_bHighlightingLine == true)
+	{
+		graphics.FillRectangle(&highlighting, m_highlightingLineRect);
 	}
 }
 
@@ -93,15 +101,31 @@ void CRichEditor::ScrollEditor(int lineNumber)
 	int distance = lineNumber - firstVisibleLine;
 	LineScroll(distance - m_gabFromUpperBound, 0);
 
-/*	int numberBegin = 0;
+	int len = (int)this->SendMessage(EM_LINELENGTH, 0, 0);
+	int secondLineIndex = len + 1;
 
-	int numberIndex = LineIndex(lineNumber);
-	if ((numberBegin = numberIndex) != -1)
-	{
-		int numberEnd = numberBegin + LineLength(numberIndex);
-		SetSel(numberBegin, numberEnd);
-		
-	}*/
+	POINT point1;
+	POINT point2;
 
+	this->SendMessage(EM_POSFROMCHAR, (WPARAM)&point1, secondLineIndex);
+	this->SendMessage(EM_POSFROMCHAR, (WPARAM)&point2, 0);
+
+	int lineHeight = point1.y - point2.y;
+
+	CRect rect;
+	GetRect(&rect);
+
+	rect.top = lineHeight * (lineNumber - GetFirstVisibleLine() - 1);
+	rect.bottom = rect.top + lineHeight;
+
+	m_highlightingLineRect.X = rect.left;
+	m_highlightingLineRect.Y = rect.top;
+
+	m_highlightingLineRect.Width = rect.right;
+	m_highlightingLineRect.Height = lineHeight;
+
+	m_bHighlightingLine = true;
+
+	InvalidateRect(rect, false);
 
 }

@@ -294,28 +294,18 @@ int CDataProcessing::EditorScrollControl(int command)
 	switch (command)
 	{
 	case CMD_INCREASE:
-	{
 		m_currentReviewData->NextLineNumber();
 		break;
-	}
 	case CMD_DECREASE:
-	{
 		m_currentReviewData->PrevLineNumber();
 		break;
-	}
 	case CMD_GETCURRENTLINE:
-	{
 		break;
-	}
 	case CMD_INIT:
-	{
 		m_currentReviewData->InitLineNumber();
 		break;
-	}
 	default:
-	{
 		return 0;
-	}
 	}
 	return m_currentReviewData->GetLineNumber();
 }
