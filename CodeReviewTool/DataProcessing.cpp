@@ -49,8 +49,8 @@ bool CDataProcessing::FindTemporaryFileDirectory()
 bool CDataProcessing::GetTextFromFile(CString filepath, CString& contents)
 {
 	CFile reviewFile;
-	LPSTR buffer = NULL;
-	int fileSize = 0, unicode;
+	int fileSize = 0;
+	int unicode;
 
 	if (reviewFile.Open(filepath, CFile::modeRead, 0) == NULL)
 	{
@@ -63,14 +63,14 @@ bool CDataProcessing::GetTextFromFile(CString filepath, CString& contents)
 	{
 		fileSize = reviewFile.GetLength();
 
-		buffer = new char[fileSize + 1];
-		buffer[fileSize] = '\0';
+		std::vector<char> buffer;
+		buffer.resize(fileSize);
+		buffer.push_back('\0');
 
-		reviewFile.Read(buffer, reviewFile.GetLength());
+		reviewFile.Read(buffer.data(), reviewFile.GetLength());
 
-		contents = CString(buffer);
+		contents = CString(buffer.data());
 
-		delete[] buffer;
 		reviewFile.Close();
 
 		return true;
@@ -122,6 +122,7 @@ void CDataProcessing::ClearAllData()
 	m_reviewText.Empty();
 	m_url.Empty();
 	m_revisions.clear();
+
 	for (iter = m_reviews.begin(); iter != m_reviews.end(); iter++)
 	{
 		iter->Clear();
