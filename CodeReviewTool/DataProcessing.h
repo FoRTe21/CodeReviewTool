@@ -17,8 +17,9 @@ protected:
 	std::list<CReviewData> m_reviews;
 
 	CReviewData* m_currentReviewData;
+	
 	CString m_sourceCodesFilePath;
-
+	CString m_temporaryFileDirectory;
 protected:
 	CString ConvertMultibyteToUnicode(LPSTR pMultibyte);
 	void ClearAllData();
@@ -30,6 +31,7 @@ protected:
 	bool ExportFileFromRepository(CString revision, CString filepath);
 	CString ExtractFileNameFromFilePath(CString filepath);
 	bool DeleteSourceCodeFile(CString filepath);
+	bool FindTemporaryFileDirectory();
 
 public:
 	CDataProcessing();

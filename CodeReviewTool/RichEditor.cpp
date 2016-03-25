@@ -93,7 +93,7 @@ void CRichEditor::ScrollEditor(int lineNumber)
 	int distance = lineNumber - firstVisibleLine;
 	LineScroll(distance - m_gabFromUpperBound, 0);
 
-	int numberBegin = 0;
+/*	int numberBegin = 0;
 
 	int numberIndex = LineIndex(lineNumber);
 	if ((numberBegin = numberIndex) != -1)
@@ -101,5 +101,7 @@ void CRichEditor::ScrollEditor(int lineNumber)
 		int numberEnd = numberBegin + LineLength(numberIndex);
 		SetSel(numberBegin, numberEnd);
 		
-	}
+	}*/
+
+
 }

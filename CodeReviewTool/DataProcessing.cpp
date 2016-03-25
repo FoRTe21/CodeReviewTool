@@ -5,16 +5,45 @@
 CDataProcessing::CDataProcessing()
 {
 	m_reviewText.Empty();
-
+	m_temporaryFileDirectory = L"temporaryCodeDir";
 	WCHAR currentDirectory[MAX_PATH] = { 0, };
 	GetCurrentDirectory(_countof(currentDirectory), currentDirectory);
-	m_sourceCodesFilePath.Format(L"%s\\temporaryCodeDir", currentDirectory);
-}
 
+	m_sourceCodesFilePath.Format(L"%s\\%s", currentDirectory, m_temporaryFileDirectory);
+
+	
+	
+}
 
 CDataProcessing::~CDataProcessing()
 {
 
+}
+
+bool CDataProcessing::FindTemporaryFileDirectory()
+{
+	CString findDirectory;
+	findDirectory.Format(L"%s\\*.*", m_sourceCodesFilePath);
+
+	CFileFind fileFind;
+	bool bResult = fileFind.FindFile(findDirectory);
+	if (bResult == false)
+	{
+		bResult = CreateDirectory(m_sourceCodesFilePath + "\\", NULL);
+		if (bResult = false)
+		{
+			::AfxMessageBox(L"임시 저장 디렉토리 생성 실패", 0, 0);
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	else
+	{
+		return true;
+	}
 }
 
 bool CDataProcessing::GetTextFromFile(CString filepath, CString& contents)
@@ -295,17 +324,24 @@ bool CDataProcessing::FillAllDataFromFile(CString filepath)
 	CString content;
 
 	ClearAllData();
-	if (GetTextFromFile(filepath, content) == false)
-	{
-		return false;
-	}
-	SetReviewText(content);
-	if (FillReviewData() == false)
-	{
-		return false;
-	}
 
-	return true;
+	if (FindTemporaryFileDirectory() == true)
+	{
+		if (GetTextFromFile(filepath, content) == false)
+		{
+			return false;
+		}
+		SetReviewText(content);
+		if (FillReviewData() == false)
+		{
+			return false;
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 bool CDataProcessing::GetReviewNCodeText(CString filepath, CString* reviewText, CString* sourceCodeText)
@@ -329,7 +365,7 @@ bool CDataProcessing::ExportFileFromRepository(CString revision, CString filepat
 	CString command;
 	STARTUPINFO startupInfomation = { 0 };
 	PROCESS_INFORMATION processInfomation;
-	bool result = false;
+	BOOL result = false;
 	startupInfomation.cb = sizeof(STARTUPINFO);
 	command.Format(L"svn export -r %s %s%s %s", revision, m_url, filepath, m_sourceCodesFilePath);
 
