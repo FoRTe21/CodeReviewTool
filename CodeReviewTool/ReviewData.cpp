@@ -96,14 +96,8 @@ void CReviewData::InitLineNumber()
 	m_lineNumberIter = m_lineNumber.begin();
 }
 
-void CReviewData::GetReviewNSourceCode(CString* review, CString* sourceCode)
+void CReviewData::GetReviewNSourceCode(CString& strReview, CString& strSourceCode)
 {
-	if (review != NULL)
-	{
-		*review = m_comments;
-	}
-	if (sourceCode != NULL)
-	{
-		*sourceCode = m_sourceCode;
-	}
+	strReview = m_comments;
+	strSourceCode = m_sourceCode;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#define IDC_CODERICHEDIT 101
+//#define IDC_CODERICHEDIT 101
 
 // CCommentView ∫‰¿‘¥œ¥Ÿ.
 #include "RichEditor.h"
@@ -8,6 +8,8 @@
 class CCommentView : public CView
 {
 	DECLARE_DYNCREATE(CCommentView)
+protected:
+	enum CONTROLID{IDC_CODERICHEDIT = 101};
 protected:
 	CRichEditor m_codeRichEdit;
 	CString m_sourceCode;

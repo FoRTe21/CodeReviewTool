@@ -15,6 +15,8 @@ protected:
 	const Gdiplus::Color m_lightBlue;
 	const int m_gabFromUpperBound;
 	bool m_bHighlightingLine;
+	int m_vScrollWidth;
+
 	Gdiplus::Rect m_highlightingLineRect;
 	Gdiplus::Color m_highlightingColor;
 

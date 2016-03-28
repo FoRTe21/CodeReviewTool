@@ -12,6 +12,7 @@ public:
 
 protected:
 	CString m_reviewText;
+	const CString m_urlStr;
 
 	CString m_url;
 	std::list<CString> m_revisions;
@@ -28,11 +29,14 @@ protected:
 	bool FillReviewData();
 	void SetReviewText(CString text);
 	int AddLineNumbers(CString numbers, CReviewData* reviewData);
-	int CheckEncoding(CFile* file);
+	Encodings CheckEncoding(CFile* file);
 	bool ExportFileFromRepository(CString revision, CString filepath);
 	CString ExtractFileNameFromFilePath(CString filepath);
 	bool DeleteSourceCodeFile(CString filepath);
 	bool FindTemporaryFileDirectory();
+
+	
+	template<typename BufferType> bool ReadFile(CFile& reviewFile, CString& contents);
 
 public:
 	CDataProcessing();
@@ -45,6 +49,6 @@ public:
 	
 
 	bool FillAllDataFromFile(CString filepath);
-	bool GetReviewNCodeText(CString filepath, CString* reviewText, CString* sourceCodeText);
+	bool GetReviewNCodeText(CString filepath, CString& strReviewText, CString& strSourceCodeText);
 };
 

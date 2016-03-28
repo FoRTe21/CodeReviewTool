@@ -31,6 +31,8 @@ CRichEditor::~CRichEditor()
 
 BEGIN_MESSAGE_MAP(CRichEditor, CRichEditCtrl)
 	ON_WM_PAINT()
+//	ON_WM_CREATE()
+//	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -90,20 +92,24 @@ void CRichEditor::PrintLineNumber(CDC* hdc)
 	}
 	if (m_bHighlightingLine == true)
 	{
-		graphics.FillRectangle(&highlighting, m_highlightingLineRect);
+		CRect rt;
+		GetClientRect(&rt);
+		Gdiplus::Rect temporaryDrawRect = m_highlightingLineRect;
+		temporaryDrawRect.Width = rt.right;// -m_vScrollWidth;
+		graphics.FillRectangle(&highlighting, temporaryDrawRect);
 	}
 }
 
 void CRichEditor::ScrollEditor(int lineNumber)
 {
-	int firstVisibleLine = this->GetFirstVisibleLine();
+	int firstVisibleLine = GetFirstVisibleLine();
 	
 	int distance = lineNumber - firstVisibleLine;
 	LineScroll(distance - m_gabFromUpperBound, 0);
 
 	int len = (int)this->SendMessage(EM_LINELENGTH, 0, 0);
 	int secondLineIndex = len + 1;
-
+	
 	POINT point1;
 	POINT point2;
 
@@ -113,7 +119,7 @@ void CRichEditor::ScrollEditor(int lineNumber)
 	int lineHeight = point1.y - point2.y;
 
 	CRect rect;
-	GetRect(&rect);
+	GetClientRect(&rect);
 
 	rect.top = lineHeight * (lineNumber - GetFirstVisibleLine() - 1);
 	rect.bottom = rect.top + lineHeight;

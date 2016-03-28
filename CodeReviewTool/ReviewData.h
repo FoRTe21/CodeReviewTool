@@ -32,7 +32,7 @@ public:
 	CString GetRevision();
 	
 	int GetLineNumber();
-	void GetReviewNSourceCode(CString* review, CString* sourceCode);
+	void GetReviewNSourceCode(CString& review, CString& sourceCode);
 	void NextLineNumber();
 	void PrevLineNumber();
 	void InitLineNumber();

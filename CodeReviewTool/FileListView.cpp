@@ -63,7 +63,7 @@ void CFileListView::ViewFileListByIndex(int index)
 	CString rivision;
 
 	m_revisionListBox.GetText(index, rivision);
-	for (auto iter = m_reviews->begin(); iter != m_reviews->end(); iter++)
+	for (auto iter = m_reviews->begin(); iter != m_reviews->end(); ++iter)
 	{
 		if (rivision.CompareNoCase(iter->GetRevision()) == 0)
 		{
@@ -107,7 +107,7 @@ void CFileListView::InitListControls(std::list<CString>* revisions, std::list<CR
 {
 	m_revisions = revisions;
 
-	for (auto iter = m_revisions->begin(); iter != m_revisions->end(); iter++)
+	for (auto iter = m_revisions->begin(); iter != m_revisions->end(); ++iter)
 	{
 		m_revisionListBox.AddString(*iter);
 	}

@@ -296,7 +296,7 @@ void CMainFrame::PrintAllTextDataOnEditCtrl(CString filepath)
 {
 	CString review, sourceCode;
 
-	m_dataProcessor.GetReviewNCodeText(filepath, &review, &sourceCode);
+	m_dataProcessor.GetReviewNCodeText(filepath, review, sourceCode);
 	m_ptPreView->PrintComments(review);
 
 	m_ptCmtView->ClearViewEdit();
