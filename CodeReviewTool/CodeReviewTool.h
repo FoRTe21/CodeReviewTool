@@ -16,7 +16,7 @@
 class CCodeReviewToolApp : public CWinApp
 {
 protected:
-	
+	ULONG_PTR m_gpToken;
 public:
 	CCodeReviewToolApp();
 

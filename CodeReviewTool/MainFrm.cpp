@@ -17,12 +17,8 @@ IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
-	ON_WM_SETFOCUS()
-//	ON_WM_SIZE()
 ON_WM_SIZE()
-ON_COMMAND(ID_SAVE, &CMainFrame::OnSave)
 ON_COMMAND(ID_FILEOPEN, &CMainFrame::OnFileopen)
-//ON_WM_PAINT()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -36,11 +32,9 @@ static UINT indicators[] =
 // CMainFrame 생성/소멸
 
 CMainFrame::CMainFrame()
-	: m_ptPreView(NULL),
-	m_ptCmtView(NULL),
-	m_fileListViewWnd(NULL)
 {
 	// TODO: 여기에 멤버 초기화 코드를 추가합니다.
+	m_dataProcessor.InitDataProcessor();
 }
 
 CMainFrame::~CMainFrame()
@@ -53,11 +47,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// 프레임의 클라이언트 영역을 차지하는 뷰를 만듭니다.
-/*	if (!m_wndView.Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, CRect(0, 0, 0, 0), this, AFX_IDW_PANE_FIRST, NULL))
-	{
-		TRACE0("뷰 창을 만들지 못했습니다.\n");
-		return -1;
-	}*/
+
+	// FoRTe21 : 나중에 필요할 경우를 대비해서 코드를 남겨둡니다. 
 
 /*	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))
@@ -110,19 +101,8 @@ void CMainFrame::Dump(CDumpContext& dc) const
 
 // CMainFrame 메시지 처리기
 
-void CMainFrame::OnSetFocus(CWnd* /*pOldWnd*/)
-{
-	// 뷰 창으로 포커스를 이동합니다.
-	//m_wndView.SetFocus();
-}
-
 BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 {
-	// 뷰에서 첫째 크랙이 해당 명령에 나타나도록 합니다.
-	/*if (m_wndView.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
-		*/
-	// 그렇지 않으면 기본 처리합니다.
 	return CFrameWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 }
 
@@ -204,16 +184,25 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
 	if (!m_wndSplitter.CreateStatic(this, 1, 2))
 	{
+		CString errorStr;
+		errorStr.Format(L"화면 분할 실패 - error : %d", GetLastError());
+		::AfxMessageBox(errorStr, 0, 0);
 		return false;
 	}
 	
 	if (!m_wndSplitter.CreateView(0, 0, RUNTIME_CLASS(CPreCodeView), CSize(cr.Width() / 2, cr.Height()), pContext))
 	{
+		CString errorStr;
+		errorStr.Format(L"리뷰 텍스트 창 생성 실패 - error : %d", GetLastError());
+		::AfxMessageBox(errorStr, 0, 0);
 		return false;
 	}
 
 	if (!m_wndSplitter.CreateView(0, 1, RUNTIME_CLASS(CCommentView), CSize(cr.Width() / 2, cr.Height()), pContext))
 	{
+		CString errorStr;
+		errorStr.Format(L"소스코드 텍스트 창 생성 실패 - error : %d", GetLastError());
+		::AfxMessageBox(errorStr, 0, 0);
 		return false;
 	}
 	
@@ -239,21 +228,11 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 	// 자연스럽게 분할창 조절되는 것은 이후에 구현.
 }
 
-
-// Command line의 arguments를 받아옴
-
-void CMainFrame::OnSave()
-{
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-}
-
-
 void CMainFrame::OnFileopen()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	OPENFILENAME ofn;
 	WCHAR lpStrFile[MAX_PATH] = L"";
-
 	memset(&ofn, 0, sizeof(OPENFILENAME));
 
 	ofn.lStructSize = sizeof(OPENFILENAME);
@@ -294,13 +273,12 @@ void CMainFrame::OpenFileListView()
 
 void CMainFrame::PrintAllTextDataOnEditCtrl(CString filepath)
 {
-	CString review, sourceCode;
+	TextData textData;
 
-	m_dataProcessor.GetReviewNCodeText(filepath, review, sourceCode);
-	m_ptPreView->PrintComments(review);
+	m_dataProcessor.GetReviewNCodeText(filepath, textData);
+	m_ptPreView->PrintComments(textData.m_strComments);
 
-	m_ptCmtView->ClearViewEdit();
-	m_ptCmtView->PrintSourceCode(sourceCode);
+	m_ptCmtView->PrintSourceCode(textData.m_strSourceCode);
 }
 
 void CMainFrame::OpenLineSearch()
@@ -318,8 +296,7 @@ void CMainFrame::CloseLineSearch()
 
 int CMainFrame::ScrollSourceCodeEditor(int command)
 {
-	int lineNumber = 0;
-	lineNumber = m_dataProcessor.EditorScrollControl(command);
+	int lineNumber = m_dataProcessor.EditorScrollControl(command);
 
 	m_lineSearchWnd->SetTextOnEdit(lineNumber);
 	m_ptCmtView->ScrollEditor(lineNumber);

@@ -2,7 +2,13 @@
 
 #include <list>
 
-class CReviewData
+struct TextData
+{
+	CString m_strComments;
+	CString m_strSourceCode;
+};
+
+class CReviewData final
 {
 protected:
 	CString m_filepath;
@@ -14,8 +20,8 @@ protected:
 	std::list<int>::iterator m_lineNumberIter;
 
 protected:
-	CString GetComment();
-	CString GetSourceCode();
+	const CString GetComment() const;
+	const CString GetSourceCode() const;
 
 public:
 	CReviewData();
@@ -28,13 +34,13 @@ public:
 	void AddComments(CString comments);
 	void AddLineNumber(int number);
 
-	CString GetFilePath();
-	CString GetRevision();
+	const CString GetFilePath() const;
+	const CString GetRevision() const;
 	
-	int GetLineNumber();
-	void GetReviewNSourceCode(CString& review, CString& sourceCode);
-	void NextLineNumber();
-	void PrevLineNumber();
+	const int GetLineNumber() const;
+	const TextData GetTextData() const;
+	void GoToNextLineNumber();
+	void GoToPrevLineNumber();
 	void InitLineNumber();
 	void Clear();
 };

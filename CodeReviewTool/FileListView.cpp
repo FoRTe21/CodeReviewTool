@@ -12,9 +12,7 @@
 IMPLEMENT_DYNAMIC(CFileListView, CDialogEx)
 
 CFileListView::CFileListView(CWnd* pParent /*=NULL*/)
-	: CDialogEx(IDD_FILESELECT, pParent),
-	m_reviews(NULL),
-	m_revisions(NULL)
+	: CDialogEx(IDD_FILESELECT, pParent)
 {
 
 }
@@ -63,7 +61,7 @@ void CFileListView::ViewFileListByIndex(int index)
 	CString rivision;
 
 	m_revisionListBox.GetText(index, rivision);
-	for (auto iter = m_reviews->begin(); iter != m_reviews->end(); ++iter)
+	for (auto iter = m_reviews.begin(); iter != m_reviews.end(); ++iter)
 	{
 		if (rivision.CompareNoCase(iter->GetRevision()) == 0)
 		{
@@ -103,11 +101,11 @@ void CFileListView::OnLbnDblclkCodefile()
 	mf->ScrollSourceCodeEditor(CDataProcessing::CMD_INIT);
 }
 
-void CFileListView::InitListControls(std::list<CString>* revisions, std::list<CReviewData>* reviews)
+void CFileListView::InitListControls(std::list<CString> revisions, std::list<CReviewData> reviews)
 {
 	m_revisions = revisions;
 
-	for (auto iter = m_revisions->begin(); iter != m_revisions->end(); ++iter)
+	for (auto iter = m_revisions.begin(); iter != m_revisions.end(); ++iter)
 	{
 		m_revisionListBox.AddString(*iter);
 	}
@@ -118,8 +116,12 @@ void CFileListView::InitListControls(std::list<CString>* revisions, std::list<CR
 	ViewFileListByIndex(0);
 }
 
-void CFileListView::MakeWindow(CWnd* parentWindow, std::list<CString>* revisions, std::list<CReviewData>* reviews)
+void CFileListView::MakeWindow(CWnd* parentWindow, std::list<CString> revisions, std::list<CReviewData> reviews)
 {
+	if (parentWindow == NULL)
+	{
+		return;
+	}
 	Create(IDD_FILESELECT, parentWindow);
 	InitListControls(revisions, reviews);
 	ShowWindow(SW_SHOW);

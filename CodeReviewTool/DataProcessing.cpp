@@ -2,18 +2,28 @@
 #include "DataProcessing.h"
 
 CDataProcessing::CDataProcessing()
-	: m_temporaryFileDirectory(L"temporaryCodeDir"),
-	m_urlStr(L"url")
 {
-	WCHAR currentDirectory[MAX_PATH] = { 0, };
-	GetCurrentDirectory(_countof(currentDirectory), currentDirectory);
 
-	m_sourceCodesFilePath.Format(L"%s\\%s", currentDirectory, m_temporaryFileDirectory);
+	
 }
 
 CDataProcessing::~CDataProcessing()
 {
 
+}
+
+bool CDataProcessing::InitDataProcessor()
+{
+	WCHAR currentDirectory[MAX_PATH] = { 0, };
+	if (GetCurrentDirectoryW(_countof(currentDirectory), currentDirectory) == 0)
+	{
+		CString errorStr;
+		errorStr.Format(L"현재 디렉토리 경로 찾기 실패 - ErrorCode : %d", GetLastError());
+		::AfxMessageBox(errorStr, 0, 0);
+		return false;
+	}
+
+	m_sourceCodesFilePath.Format(L"%s\\%s", currentDirectory, m_temporaryFileDirectory);
 }
 
 bool CDataProcessing::FindTemporaryFileDirectory()
@@ -39,7 +49,7 @@ bool CDataProcessing::FindTemporaryFileDirectory()
 bool CDataProcessing::GetTextFromFile(CString filepath, CString& contents)
 {
 	CFile reviewFile;
-	enum Encodings unicode;
+	Encodings unicode;
 
 	if (reviewFile.Open(filepath, CFile::modeRead, 0) == NULL)
 	{
@@ -47,20 +57,23 @@ bool CDataProcessing::GetTextFromFile(CString filepath, CString& contents)
 		return false;
 	}
 	
-	unicode = CheckEncoding(&reviewFile);
+	unicode = CheckEncoding(reviewFile);
 	switch (unicode)
 	{
 	case ANSI:
-		ReadFile<char>(reviewFile, contents, ANSI);
+		contents = ReadANSIFile(reviewFile);
 		break;
 	case UTF16:
-		ReadFile<WCHAR>(reviewFile, contents, UTF16);
+		contents = ReadUTF16LeFile(reviewFile);
 		break;
 	case UTF8:
-		ReadFile<char>(reviewFile, contents, UTF8);
+		contents = ReadUTF8File(reviewFile);
+		break;
+	case UTF16BIGENDIAN:
+		contents = ReadUTF16BeFile(reviewFile);
 		break;
 	default:
-		::AfxMessageBox(L"ANSI, UTF16만 지원", 0, 0);
+		::AfxMessageBox(L"지원 인코딩 : ANSI, UTF8, UTF16LE, UTF16BE", 0, 0);
 		reviewFile.Close();
 		return false;
 	}
@@ -71,37 +84,68 @@ bool CDataProcessing::GetTextFromFile(CString filepath, CString& contents)
 	return true;
 }
 
-template<typename BufferType> bool CDataProcessing::ReadFile(CFile& reviewFile, CString& contents, Encodings encoding)
+CString CDataProcessing::ReadANSIFile(CFile& reviewFile)
 {
-	ULONGLONG fileSize = reviewFile.GetLength();
+	std::vector<CHAR> buffer = ReadFile<CHAR>(reviewFile);
 
+	CString strBuffer(buffer.data());
+	return strBuffer;
+}
+
+CString CDataProcessing::ReadUTF16LeFile(CFile& reviewFile)
+{
+	std::vector<WCHAR> buffer = ReadFile<WCHAR>(reviewFile);
+
+	CString strBuffer(buffer.data());
+	return strBuffer;
+}
+
+CString CDataProcessing::ReadUTF16BeFile(CFile& reviewFile)
+{
+	std::vector<WCHAR> buffer = ReadFile<WCHAR>(reviewFile);
+
+	for (ULONG i = 0; i < buffer.size(); i++)
+	{
+		buffer[i] = ConvertWCHAREndian(buffer[i]);
+	}
+
+	CString strBuffer(buffer.data());
+	return strBuffer;
+}
+
+CString CDataProcessing::ReadUTF8File(CFile& reviewFile)
+{
+	std::vector<CHAR> buffer = ReadFile<CHAR>(reviewFile);
+	const int byteNumberPerCharacterInUtf8 = 4;
+	std::vector<WCHAR> wideCharArray(buffer.size() * byteNumberPerCharacterInUtf8);
+	MultiByteToWideChar(CP_UTF8, 0, (LPCCH)buffer.data(), buffer.size(), wideCharArray.data(), buffer.size() * byteNumberPerCharacterInUtf8);
+
+	CString strBuffer(wideCharArray.data());
+	return strBuffer;
+}
+
+WCHAR CDataProcessing::ConvertWCHAREndian(WCHAR data)
+{
+	return (((data & 0xff) << 8) | ((data >> 8) & 0xff));
+}
+
+template<typename BufferType> std::vector<BufferType> CDataProcessing::ReadFile(CFile& reviewFile)
+{
+	UINT fileSize = static_cast<UINT>(reviewFile.GetLength());
 	std::vector<BufferType> buffer(fileSize);
 	buffer.push_back('\0');
 
 	reviewFile.Read(buffer.data(), fileSize);
 
-	if (encoding == UTF8)
-	{
-		const int byteNumberPerCharacterInUtf8 = 4;
-		std::vector<WCHAR> wideCharArray(fileSize * byteNumberPerCharacterInUtf8);
-		MultiByteToWideChar(CP_UTF8, 0, (LPCCH)buffer.data(), fileSize, wideCharArray.data(), fileSize * byteNumberPerCharacterInUtf8);
-
-		contents = CString(wideCharArray.data());
-	}
-	else
-	{
-		contents = CString(buffer.data());
-	}
-
-	return true;
+	return buffer;
 }
 
-CDataProcessing::Encodings CDataProcessing::CheckEncoding(CFile* file)
+CDataProcessing::Encodings CDataProcessing::CheckEncoding(CFile& file)
 {
 	unsigned char encodingHeader[2] = { 0, };
 	enum Encodings encodingType;
 
-	file->Read(encodingHeader, 2);
+	file.Read(encodingHeader, 2);
 
 	if (encodingHeader[0] == 0xff && encodingHeader[1] == 0xfe)
 	{
@@ -109,11 +153,11 @@ CDataProcessing::Encodings CDataProcessing::CheckEncoding(CFile* file)
 	}
 	else if (encodingHeader[0] == 0xfe && encodingHeader[1] == 0xff)
 	{
-		encodingType = UNICODE_BIGENDIAN;
+		encodingType = UTF16BIGENDIAN;
 	}
 	else if (encodingHeader[0] == 0xef && encodingHeader[1] == 0xbb)
 	{
-		file->Read(encodingHeader, 1);
+		file.Read(encodingHeader, 1);
 		if (encodingHeader[0] == 0xbf)
 		{
 			encodingType = UTF8;
@@ -122,7 +166,7 @@ CDataProcessing::Encodings CDataProcessing::CheckEncoding(CFile* file)
 	else
 	{
 		encodingType = ANSI;
-		file->SeekToBegin();
+		file.SeekToBegin();
 	}
 
 	return encodingType;
@@ -143,11 +187,12 @@ void CDataProcessing::ClearAllData()
 
 bool CDataProcessing::FillReviewData()
 {
-	int index = 0;
+	
 	int tmpIndex = 0;
 	CReviewData tempReviewData;
 	bool sameFileFlag = false;
 
+	int index = 0;
 	CString oneLine = m_reviewText.Tokenize(L"\r\n", index);
 	CString tmpString = oneLine.Tokenize(L": ", tmpIndex);
 
@@ -225,7 +270,7 @@ bool CDataProcessing::FillReviewData()
 					{
 						int i = 0;
 						tmpString = oneLine;
-						AddLineNumbers(tmpString.Tokenize(L":", i), &tempReviewData);
+						AddLineNumbers(tmpString.Tokenize(L":", i), tempReviewData);
 					}
 				}
 			}
@@ -242,14 +287,14 @@ bool CDataProcessing::FillReviewData()
 	return true;
 }
 
-std::list<CString>* CDataProcessing::GetRivisions()
+const std::list<CString> CDataProcessing::GetRivisions() const
 {
-	return &m_revisions;
+	return m_revisions;
 }
 
-std::list<CReviewData>* CDataProcessing::GetReviews()
+const std::list<CReviewData> CDataProcessing::GetReviews() const
 {
-	return &m_reviews;
+	return m_reviews;
 }
 
 void CDataProcessing::SetReviewText(CString text)
@@ -257,7 +302,7 @@ void CDataProcessing::SetReviewText(CString text)
 	m_reviewText = text;
 }
 
-int CDataProcessing::AddLineNumbers(CString numbers, CReviewData* reviewData)
+int CDataProcessing::AddLineNumbers(CString numbers, CReviewData& reviewData)
 {
 	CString number;
 	int index = 0, count = 0;
@@ -266,7 +311,7 @@ int CDataProcessing::AddLineNumbers(CString numbers, CReviewData* reviewData)
 	while ((number = numbers.Tokenize(L",", index)) != "")
 	{
 		++count;
-		reviewData->AddLineNumber(_ttoi(number));
+		reviewData.AddLineNumber(_ttoi(number));
 	}
 
 	return count;
@@ -277,20 +322,20 @@ int CDataProcessing::EditorScrollControl(int command)
 	switch (command)
 	{
 	case CMD_INCREASE:
-		m_currentReviewData->NextLineNumber();
+		m_currentReviewData.GoToNextLineNumber();
 		break;
 	case CMD_DECREASE:
-		m_currentReviewData->PrevLineNumber();
+		m_currentReviewData.GoToPrevLineNumber();
 		break;
 	case CMD_GETCURRENTLINE:
 		break;
 	case CMD_INIT:
-		m_currentReviewData->InitLineNumber();
+		m_currentReviewData.InitLineNumber();
 		break;
 	default:
 		return 0;
 	}
-	return m_currentReviewData->GetLineNumber();
+	return m_currentReviewData.GetLineNumber();
 }
 
 bool CDataProcessing::FillAllDataFromFile(CString filepath)
@@ -319,15 +364,15 @@ bool CDataProcessing::FillAllDataFromFile(CString filepath)
 	return true;
 }
 
-bool CDataProcessing::GetReviewNCodeText(CString filepath, CString& strReviewText, CString& strSourceCodeText)
+bool CDataProcessing::GetReviewNCodeText(CString filepath, TextData& textData)
 {
 	for (auto iter = m_reviews.begin(); iter != m_reviews.end(); ++iter)
 	{
 		if (filepath.CompareNoCase(iter->GetFilePath()) == 0)
 		{
-			m_currentReviewData = &(*iter);
-			m_currentReviewData->InitLineNumber();
-			iter->GetReviewNSourceCode(strReviewText,strSourceCodeText);
+			m_currentReviewData = *iter;
+			m_currentReviewData.InitLineNumber();
+			textData = iter->GetTextData();
 			return true;
 		}
 	}
@@ -342,17 +387,19 @@ bool CDataProcessing::ExportFileFromRepository(CString revision, CString filepat
 	PROCESS_INFORMATION processInfomation;
 	BOOL result = false;
 	startupInfomation.cb = sizeof(STARTUPINFO);
-	
 	// == for local test == //
 	command.Format(L"svn export -r %s file:///%s%s %s", revision, m_url, filepath, m_sourceCodesFilePath);
 	
 	// == for extern server test == //
 	//command.Format(L"svn export -r %s %s%s %s", revision, m_url, filepath, m_sourceCodesFilePath);
 
-	result = CreateProcessW(NULL, (LPWSTR)(LPCWSTR)command, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfomation, &processInfomation);
+	result = CreateProcessW(NULL, (LPWSTR)(LPCWSTR)command, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &startupInfomation, &processInfomation);
 
 	if (result == false)
 	{
+		CString errorStr;
+		errorStr.Format(L"SVN 프로그램 실행 실패 - error : %d", GetLastError());
+		::AfxMessageBox(errorStr, 0, 0);
 		return false;
 	}
 	else

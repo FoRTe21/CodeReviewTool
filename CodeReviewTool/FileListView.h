@@ -1,6 +1,5 @@
 #pragma once
 #include "afxwin.h"
-//#include "MainFrm.h"
 #include <list>
 // CFileListView 대화 상자입니다.
 
@@ -10,8 +9,8 @@ class CFileListView : public CDialogEx
 {
 	DECLARE_DYNAMIC(CFileListView)
 protected:
-	std::list<CReviewData>* m_reviews;
-	std::list<CString>* m_revisions;
+	std::list<CReviewData> m_reviews;
+	std::list<CString> m_revisions;
 
 	CListBox m_revisionListBox;
 	CListBox m_fileNameListBox;
@@ -31,7 +30,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 	
-	void InitListControls(std::list<CString>* revisions, std::list<CReviewData>* reviews);
+	void InitListControls(std::list<CString> revisions, std::list<CReviewData> reviews);
 
 	void ClearFileNameLB();
 	void ClearRevisionLB();
@@ -40,7 +39,7 @@ protected:
 
 public:
 
-	void MakeWindow(CWnd* parentWindow, std::list<CString>* revisions, std::list<CReviewData>* reviews);
+	void MakeWindow(CWnd* parentWindow, std::list<CString> revisions, std::list<CReviewData> reviews);
 	afx_msg void OnClose();
 	afx_msg void OnLbnSelchangeRevision();
 	afx_msg void OnLbnDblclkCodefile();

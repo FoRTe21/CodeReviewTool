@@ -1,6 +1,5 @@
 #pragma once
 
-//#define IDC_CODERICHEDIT 101
 
 // CCommentView 뷰입니다.
 #include "RichEditor.h"
@@ -9,10 +8,9 @@ class CCommentView : public CView
 {
 	DECLARE_DYNCREATE(CCommentView)
 protected:
-	enum CONTROLID{IDC_CODERICHEDIT = 101};
+	
 protected:
 	CRichEditor m_codeRichEdit;
-	CString m_sourceCode;
 
 protected:
 	CCommentView();           // 동적 만들기에 사용되는 protected 생성자입니다.
@@ -33,11 +31,8 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 public:
-	void ClearViewEdit();
-
 	void PrintSourceCode(CString sourceCode);
 
 	void ScrollEditor(int lineNumber);
-	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 };
 

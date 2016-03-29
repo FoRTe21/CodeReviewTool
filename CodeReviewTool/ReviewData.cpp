@@ -36,17 +36,17 @@ void CReviewData::Clear()
 	m_lineNumberIter = m_lineNumber.begin();
 }
 
-CString CReviewData::GetFilePath()
+const CString CReviewData::GetFilePath() const
 {
 	return m_filepath;
 }
 
-CString CReviewData::GetRevision()
+const CString CReviewData::GetRevision() const
 {
 	return m_revision;
 }
 
-CString CReviewData::GetComment()
+const CString CReviewData::GetComment() const
 {
 	return m_comments;
 }
@@ -56,7 +56,7 @@ void CReviewData::SetSourceCode(CString sourceCode)
 	m_sourceCode = sourceCode;
 }
 
-CString CReviewData::GetSourceCode()
+const CString CReviewData::GetSourceCode() const
 {
 	return m_sourceCode;
 }
@@ -66,12 +66,12 @@ void CReviewData::AddLineNumber(int number)
 	m_lineNumber.push_back(number);
 }
 
-int CReviewData::GetLineNumber()
+const int CReviewData::GetLineNumber() const
 {
 	return (*m_lineNumberIter);
 }
 
-void CReviewData::NextLineNumber()
+void CReviewData::GoToNextLineNumber()
 {
 	if (m_lineNumberIter != m_lineNumber.end())
 	{
@@ -83,7 +83,7 @@ void CReviewData::NextLineNumber()
 	}
 }
 
-void CReviewData::PrevLineNumber()
+void CReviewData::GoToPrevLineNumber()
 {
 	if (m_lineNumberIter != m_lineNumber.begin())
 	{
@@ -96,8 +96,11 @@ void CReviewData::InitLineNumber()
 	m_lineNumberIter = m_lineNumber.begin();
 }
 
-void CReviewData::GetReviewNSourceCode(CString& strReview, CString& strSourceCode)
+const TextData CReviewData::GetTextData() const
 {
-	strReview = m_comments;
-	strSourceCode = m_sourceCode;
+	TextData textData;
+	textData.m_strComments = m_comments;
+	textData.m_strSourceCode = m_sourceCode;
+
+	return textData;
 }

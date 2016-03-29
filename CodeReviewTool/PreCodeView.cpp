@@ -64,8 +64,6 @@ int CPreCodeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_codeRichEdit.Create(WS_CHILD | WS_VISIBLE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | WS_VSCROLL | WS_HSCROLL | ES_READONLY,
 							cr, this, IDC_REVIEWRICHEDIT);
 
-	//m_codeRichEdit.SetEventMask(m_codeRichEdit.GetEventMask() | NM_DBLCLK);
-
 	CHARFORMAT cf;
 	cf.cbSize = sizeof(cf);
 	cf.dwEffects = CFE_PROTECTED;

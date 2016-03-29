@@ -104,6 +104,12 @@ BOOL CCodeReviewToolApp::InitInstance()
 	pFrame->ShowWindow(SW_SHOW);
 	pFrame->UpdateWindow();
 
+	Gdiplus::GdiplusStartupInput gpsi;
+	if (Gdiplus::GdiplusStartup(&m_gpToken, &gpsi, NULL) != Gdiplus::Ok)
+	{
+		AfxMessageBox(L"GDI+ 라이브러리 초기화 실패");
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -111,6 +117,11 @@ BOOL CCodeReviewToolApp::InitInstance()
 int CCodeReviewToolApp::ExitInstance()
 {
 	//TODO: 추가한 추가 리소스를 처리합니다.
+	if (m_gpToken != NULL)
+	{
+		Gdiplus::GdiplusShutdown(m_gpToken);
+	}
+
 	AfxOleTerm(FALSE);
 
 	return CWinApp::ExitInstance();
@@ -138,7 +149,6 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-//	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
@@ -151,7 +161,6 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
-//	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 // 대화 상자를 실행하기 위한 응용 프로그램 명령입니다.
