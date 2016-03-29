@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "DataProcessing.h"
 
-
 CDataProcessing::CDataProcessing()
 	: m_temporaryFileDirectory(L"temporaryCodeDir"),
 	m_urlStr(L"url")
@@ -52,37 +51,47 @@ bool CDataProcessing::GetTextFromFile(CString filepath, CString& contents)
 	switch (unicode)
 	{
 	case ANSI:
-		ReadFile<char>(reviewFile, contents);
+		ReadFile<char>(reviewFile, contents, ANSI);
 		break;
-	case UNICODE_:
-		ReadFile<WCHAR>(reviewFile, contents);
+	case UTF16:
+		ReadFile<WCHAR>(reviewFile, contents, UTF16);
 		break;
 	case UTF8:
-		ReadFile<WCHAR>(reviewFile, contents);
-		contents = CW2A(contents, CP_UTF8);
+		ReadFile<char>(reviewFile, contents, UTF8);
 		break;
 	default:
-		::AfxMessageBox(L"ANSI UNICODE만 지원", 0, 0);
+		::AfxMessageBox(L"ANSI, UTF16만 지원", 0, 0);
 		reviewFile.Close();
 		return false;
 	}
 
+	
 	reviewFile.Close();
 
 	return true;
 }
 
-template<typename BufferType> bool CDataProcessing::ReadFile(CFile& reviewFile, CString& contents)
+template<typename BufferType> bool CDataProcessing::ReadFile(CFile& reviewFile, CString& contents, Encodings encoding)
 {
 	ULONGLONG fileSize = reviewFile.GetLength();
 
-	std::vector<BufferType> buffer;
-	buffer.resize(fileSize);
+	std::vector<BufferType> buffer(fileSize);
 	buffer.push_back('\0');
 
 	reviewFile.Read(buffer.data(), fileSize);
 
-	contents = CString(buffer.data());
+	if (encoding == UTF8)
+	{
+		const int byteNumberPerCharacterInUtf8 = 4;
+		std::vector<WCHAR> wideCharArray(fileSize * byteNumberPerCharacterInUtf8);
+		MultiByteToWideChar(CP_UTF8, 0, (LPCCH)buffer.data(), fileSize, wideCharArray.data(), fileSize * byteNumberPerCharacterInUtf8);
+
+		contents = CString(wideCharArray.data());
+	}
+	else
+	{
+		contents = CString(buffer.data());
+	}
 
 	return true;
 }
@@ -96,7 +105,7 @@ CDataProcessing::Encodings CDataProcessing::CheckEncoding(CFile* file)
 
 	if (encodingHeader[0] == 0xff && encodingHeader[1] == 0xfe)
 	{
-		encodingType = UNICODE_;
+		encodingType = UTF16;
 	}
 	else if (encodingHeader[0] == 0xfe && encodingHeader[1] == 0xff)
 	{
@@ -130,23 +139,6 @@ void CDataProcessing::ClearAllData()
 		iter->Clear();
 	}
 	m_reviews.clear();
-}
-
-CString CDataProcessing::ConvertMultibyteToUnicode(LPSTR pMultibyte)
-{
-	int nLen = strlen(pMultibyte);
-
-	WCHAR *pWideChar = new WCHAR[nLen];
-	memset(pWideChar, 0x00, (nLen)*sizeof(WCHAR));
-
-	MultiByteToWideChar(CP_ACP, 0, (LPCSTR)pMultibyte, -1, pWideChar, nLen);
-
-	CString strUnicode;
-	strUnicode.Format(L"%s", pWideChar);
-
-	delete[] pWideChar;
-
-	return strUnicode;
 }
 
 bool CDataProcessing::FillReviewData()
@@ -204,11 +196,10 @@ bool CDataProcessing::FillReviewData()
 			}
 
 			oneLine.Delete(0, wcslen(L"* /"));
-			ExportFileFromRepository(revision, oneLine);
-
-			
-
-			CString pureFileName = ExtractFileNameFromFilePath(oneLine);
+			CString ExtractedPrefix = oneLine;
+			ExportFileFromRepository(revision, ExtractedPrefix);
+				
+			CString pureFileName = ExtractFileNameFromFilePath(ExtractedPrefix);
 			tempReviewData.SetFilePath(pureFileName);
 			
 			CString filepath;

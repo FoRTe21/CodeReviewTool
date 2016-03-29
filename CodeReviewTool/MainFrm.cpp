@@ -318,22 +318,11 @@ void CMainFrame::CloseLineSearch()
 
 int CMainFrame::ScrollSourceCodeEditor(int command)
 {
-	int line = 0;
-	switch (command)
-	{
-	case CDataProcessing::CMD_INCREASE:
-		line = m_dataProcessor.EditorScrollControl(command);
-		break;
-	case CDataProcessing::CMD_DECREASE:
-		line = m_dataProcessor.EditorScrollControl(command);
-		break;
-	case CDataProcessing::CMD_INIT:
-		line = m_dataProcessor.EditorScrollControl(command);
-		break;
-	}
+	int lineNumber = 0;
+	lineNumber = m_dataProcessor.EditorScrollControl(command);
 
-	m_lineSearchWnd->SetTextOnEdit(line);
-	m_ptCmtView->ScrollEditor(line);
+	m_lineSearchWnd->SetTextOnEdit(lineNumber);
+	m_ptCmtView->ScrollEditor(lineNumber);
 
-	return line;
+	return lineNumber;
 }

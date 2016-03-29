@@ -31,7 +31,6 @@ public:
 
 public:
 	void PrintComments(CString comments);
-	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 };
 
 

@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include "ChildView.h"
 #include "PreCodeView.h"
 #include "CommentView.h"
 #include "DataProcessing.h"

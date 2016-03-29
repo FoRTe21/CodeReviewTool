@@ -42,9 +42,9 @@ END_MESSAGE_MAP()
 void CLineSearch::OnBnClickedPrevlinebutton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	CMainFrame* mf = (CMainFrame*)AfxGetMainWnd();
+	CMainFrame* mainFrame = (CMainFrame*)AfxGetMainWnd();
 
-	int line = mf->ScrollSourceCodeEditor(CDataProcessing::CMD_DECREASE);
+	int line = mainFrame->ScrollSourceCodeEditor(CDataProcessing::CMD_DECREASE);
 	//SetTextOnEdit(line);
 }
 
@@ -52,9 +52,9 @@ void CLineSearch::OnBnClickedPrevlinebutton()
 void CLineSearch::OnBnClickedNextlinebutton()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	CMainFrame* mf = (CMainFrame*)AfxGetMainWnd();
+	CMainFrame* mainFrame = (CMainFrame*)AfxGetMainWnd();
 
-	int line = mf->ScrollSourceCodeEditor(CDataProcessing::CMD_INCREASE);
+	int line = mainFrame->ScrollSourceCodeEditor(CDataProcessing::CMD_INCREASE);
 	//SetTextOnEdit(line);
 }
 
@@ -70,6 +70,9 @@ void CLineSearch::PostNcDestroy()
 void CLineSearch::OnClose()
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	//DO Nothing
+
 	//DestroyWindow();
 	//CDialogEx::OnClose();
 }

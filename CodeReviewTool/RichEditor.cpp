@@ -95,7 +95,7 @@ void CRichEditor::PrintLineNumber(CDC* hdc)
 		CRect rt;
 		GetClientRect(&rt);
 		Gdiplus::Rect temporaryDrawRect = m_highlightingLineRect;
-		temporaryDrawRect.Width = rt.right;// -m_vScrollWidth;
+		temporaryDrawRect.Width = rt.right;
 		graphics.FillRectangle(&highlighting, temporaryDrawRect);
 	}
 }

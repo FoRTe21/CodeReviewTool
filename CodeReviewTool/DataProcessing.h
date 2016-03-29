@@ -2,13 +2,11 @@
 #include <list>
 #include <vector>
 #include "ReviewData.h"
-
-
 class CDataProcessing
 {
 public:
 	enum Commands { CMD_INCREASE, CMD_DECREASE, CMD_GETCURRENTLINE, CMD_INIT };
-	enum Encodings { UNICODE_, UNICODE_BIGENDIAN, UTF8, ANSI };
+	enum Encodings { UTF16, UNICODE_BIGENDIAN, UTF8, ANSI };
 
 protected:
 	CString m_reviewText;
@@ -23,7 +21,6 @@ protected:
 	CString m_sourceCodesFilePath;
 	CString m_temporaryFileDirectory;
 protected:
-	CString ConvertMultibyteToUnicode(LPSTR pMultibyte);
 	void ClearAllData();
 	bool GetTextFromFile(CString filepath, CString& contents);
 	bool FillReviewData();
@@ -36,8 +33,7 @@ protected:
 	bool FindTemporaryFileDirectory();
 
 	
-	template<typename BufferType> bool ReadFile(CFile& reviewFile, CString& contents);
-
+	template<typename BufferType> bool ReadFile(CFile& reviewFile, CString& contents, Encodings encoding);
 public:
 	CDataProcessing();
 	~CDataProcessing();

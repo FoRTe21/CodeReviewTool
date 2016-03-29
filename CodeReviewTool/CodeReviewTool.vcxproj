@@ -189,7 +189,6 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ChildView.h" />
     <ClInclude Include="CodeReviewTool.h" />
     <ClInclude Include="CommentView.h" />
     <ClInclude Include="DataProcessing.h" />
@@ -204,7 +203,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CodeReviewTool.cpp" />
     <ClCompile Include="CommentView.cpp" />
     <ClCompile Include="DataProcessing.cpp" />
